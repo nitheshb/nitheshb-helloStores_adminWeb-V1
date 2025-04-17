@@ -600,7 +600,7 @@ export const  createOrderDb = async (orgId, payload)  =>  {
     const { params } = payload;
     params.status = 'published';
 
-    console.log('categories are ====>', params)
+    console.log('orders are ====>', params)
     
 
     // {title[en]: 'Restaurant Equipment', description[en]: 'Reliable Commercial Restaurant Kitchen Equipment For Every Application', keywords: 'equipment', images: Array(1), active: 1, …}
@@ -848,7 +848,7 @@ export const  createReviewDb = async (orgId, payload)  =>  {
     const { params } = payload;
     params.status = 'published';
 
-    console.log('categories are ====>', params)
+    console.log('reviews are ====>', params)
     
   const did = uuidv4()
   const x = {
@@ -1011,7 +1011,7 @@ export const  createBannerDb = async (orgId, payload)  =>  {
     const { params } = payload;
     params.status = 'published';
 
-    console.log('categories are ====>', params)
+    console.log('banner are ====>', params)
     
   const did = uuidv4()
   const x = {
@@ -1174,7 +1174,7 @@ export const  createRefundDb = async (orgId, payload)  =>  {
     const { params } = payload;
     params.status = 'published';
 
-    console.log('categories are ====>', params)
+    console.log('refund are ====>', params)
     
   const did = uuidv4()
   const x = {
@@ -1251,7 +1251,7 @@ x['images[0]'] = ""
   }
 }
 export const deleteRefund= async (params) => {
-  console.log('delte user is ', params)
+  console.log('delete user is ', params)
   params.map(async(item) => {
    await deleteDoc(doc(db, 'p_refund', item))
   })
@@ -1500,7 +1500,7 @@ let y  = {data:files,
   return y;
 };
 
-// refund
+// coupon
 export const getAllCoupon = async (orgId, params) => {
   console.log('params are ====>', params)
   // const {params} = params
@@ -1578,7 +1578,7 @@ export const  createCouponDb = async (orgId, payload)  =>  {
     const { params } = payload;
     params.status = 'published';
 
-    console.log('categories are ====>', params)
+    console.log('coupon are ====>', params)
     
   const did = uuidv4()
   const x = {
