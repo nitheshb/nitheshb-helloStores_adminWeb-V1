@@ -1,5 +1,5 @@
 import request from './request';
-import { getAllReviews, getAllReviewsById, deleteReview } from 'firebase.js';
+import { getAllReviews, getAllReviewsById, deleteReviews } from 'firebase.js';
 
 const reviewService = {
   // getAll: (params) =>
@@ -13,7 +13,7 @@ const reviewService = {
    // new
     getAll: (params) => getAllReviews('spark', { params }),
     getById: (id, params) => getAllReviewsById('spark', id, { params }),
-    delete: (params) => deleteReview(params),
+    delete: (params) => deleteReviews(params),
 };
 
 export default reviewService;

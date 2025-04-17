@@ -523,6 +523,1362 @@ export const deleteCategory= async (params) => {
 
 }
 
+
+// Units
+export const getAllUnits=async (orgId, params) => {
+  console.log('params are ====>', params)
+  // const {params} = params
+  const filesQuery = query(
+    collection(db, `Units`),
+    // where('status', '==', params?.params?.status || 'published'),
+  );
+  const querySnapshot = await getDocs(filesQuery);
+  const files = querySnapshot.docs.map((doc) => {
+    let x = doc.data();
+    x.id = doc.id; 
+    x.uuid = doc.id;
+    return x;
+  });
+  
+  
+let y  = {data:files, 
+  "links": {
+    "first": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/units\/paginate?page=1",
+    "last": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/units\/paginate?page=1",
+    "prev": null,
+    "next": null
+},
+"meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/units\/paginate?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/units\/paginate",
+    "per_page": "10",
+    "to": 5,
+    "total": 5
+}}
+  return y;
+};
+
+
+export const getAllUnitsById= async (orgId, uid, payload) => {
+  try {
+    const docRef = doc(db, `brands`, uid)
+    const docSnap = await getDoc(docRef)
+
+    console.log('Document data:', docSnap.data());
+
+    if (docSnap.exists() && docSnap.data()) {
+      console.log('Brokerage details found:', docSnap.data());
+      let x =docSnap.data();
+      x.id = docSnap.id;
+      x.uuid = doc.id;
+      x.img = x['images[0]'];
+
+      return docSnap.data();
+    } else {
+      console.log('No brokerage details found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching brokerage details:', error);
+    throw error;
+  }
+};
+export const  createUnitsDb=async (orgId, payload)  =>  {
+  try {
+    const filesCollectionRef = collection(db, `brands`);
+    const { params } = payload;
+    params.status = 'published';
+    const docRef = await addDoc(filesCollectionRef, {...params});
+    console.log('Files saved successfully with ID:', docRef.id);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error saving files to Firestore:', error);
+    throw error;
+  }
+};
+
+export const updateUnits= async (
+  uid,params
+
+) => {
+  try {
+  
+console.log('params are ====>', uid,params)
+let x = params
+x['images[0]'] = ""
+
+
+    await updateDoc(doc(db, `brands`, uid), {
+      title: x.title,
+      active: x.active
+    })
+    // enqueueSnackbar('Cost Sheet Updated for Customer', {
+    //   variant: 'success',
+    // })
+  } catch (error) {
+    console.log('Filed updated Cost sheet', error, {
+      ...data,
+    })
+  
+  }
+}
+export const deleteUnits=async (params) => {
+  console.log('delte user is ', params)
+  params.map(async(item) => {
+   await deleteDoc(doc(db, 'brands', item))
+  })
+
+}
+
+
+// products
+export const getAllProducts = async (orgId, params) => {
+  console.log('params are ====>', params)
+  // const {params} = params
+  const filesQuery = query(
+    collection(db, `Products`),
+    // where('status', '==', params?.params?.status || 'published'),
+  );
+  const querySnapshot = await getDocs(filesQuery);
+  const files = querySnapshot.docs.map((doc) => {
+    let x = doc.data();
+    x.id = doc.id; 
+    x.uuid = doc.id;
+    return x;
+  });
+  
+  
+let y  = {data:files, 
+  "links": {
+    "first": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=1",
+    "last": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=50",
+    "prev": null,
+    "next": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=2"
+},
+"meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 50,
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=2",
+            "label": "2",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=3",
+            "label": "3",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=4",
+            "label": "4",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=5",
+            "label": "5",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=6",
+            "label": "6",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=7",
+            "label": "7",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=8",
+            "label": "8",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=9",
+            "label": "9",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=10",
+            "label": "10",
+            "active": false
+        },
+        {
+            "url": null,
+            "label": "...",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=49",
+            "label": "49",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=50",
+            "label": "50",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate?page=2",
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/products\/paginate",
+    "per_page": "10",
+    "to": 10,
+    "total": 498
+}}
+  return y;
+};
+
+
+export const getAllProductsById = async (orgId, uid, payload) => {
+  try {
+    const docRef = doc(db, `p_category`, uid)
+    const docSnap = await getDoc(docRef)
+
+    console.log('Document data:', docSnap.data());
+
+    if (docSnap.exists() && docSnap.data()) {
+      console.log('Brokerage details found:', docSnap.data());
+      let x =docSnap.data();
+      x.id = docSnap.id;
+      x.uuid = doc.id;
+      x.img = x['images[0]'];
+
+      return docSnap.data();
+    } else {
+      console.log('No brokerage details found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching brokerage details:', error);
+    throw error;
+  }
+};
+export const  createProductsDb = async (orgId, payload)  =>  {
+  try {
+    const filesCollectionRef = collection(db, `p_category`);
+    const { params } = payload;
+    params.status = 'published';
+
+    console.log('categories are ====>', params)
+    
+  const did = uuidv4()
+  const x = {
+    "created_at": Timestamp.now().toMillis(),
+    "updated_at": Timestamp.now().toMillis(),
+    "shop": null,
+    "children": [],
+    "parent": null,
+    "title": params['title[en]'],
+    "description": params['description[en]'],
+    // "title[en]": "Pies",
+    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
+ 
+    "id": did,
+    "uuid": did,
+    "keywords": params?.keywords,
+    "type": params?.type,
+    "input": 32767,
+    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
+    "active": true,
+    "status": "published",
+          "translation": {
+          "id": 18,
+          "locale": "en",
+          "title": "Commercial Ref"
+      },
+      "translations": [
+          {
+              "id": 18,
+              "locale": "en",
+              "title": "Commercial Ref1",
+              "description": params['description[en]']
+          }
+      ],
+      "locales": [
+          "en"
+      ],
+   
+  }
+
+    // const docRef = await addDoc(filesCollectionRef, {...x});
+    const docRef= await setDoc(doc(db, `Products`, did), x)
+    console.log('Files saved successfully with ID:', docRef);
+    return docRef;
+  } catch (error) {
+    console.error('Error saving files to Firestore:', error);
+    throw error;
+  }
+};
+
+export const updateProducts = async (
+  uid,params
+
+) => {
+  try {
+  
+console.log('params are ====>', uid,params)
+let x = params
+x['images[0]'] = ""
+
+
+    await updateDoc(doc(db, `p_category`, uid), {
+      title: x.title,
+      active: x.active
+    })
+    // enqueueSnackbar('Cost Sheet Updated for Customer', {
+    //   variant: 'success',
+    // })
+  } catch (error) {
+    console.log('Filed updated Cost sheet', error, {
+      ...data,
+    })
+  
+  }
+}
+export const deleteProducts= async (params) => {
+  console.log('delte user is ', params)
+  params.map(async(item) => {
+   await deleteDoc(doc(db, 'p_category', item))
+  })
+
+}
+
+
+
+// discounts
+export const getAllDiscounts = async (orgId, params) => {
+  console.log('params are ====>', params)
+  // const {params} = params
+  const filesQuery = query(
+    collection(db, `Discounts`),
+    // where('status', '==', params?.params?.status || 'published'),
+  );
+  const querySnapshot = await getDocs(filesQuery);
+  const files = querySnapshot.docs.map((doc) => {
+    let x = doc.data();
+    x.id = doc.id; 
+    x.uuid = doc.id;
+    return x;
+  });
+  
+  
+let y  = {data:files, 
+  "links": {
+    "first": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/seller\/discounts\/paginate?page=1",
+    "last": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/seller\/discounts\/paginate?page=1",
+    "prev": null,
+    "next": null
+},
+"meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/seller\/discounts\/paginate?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/seller\/discounts\/paginate",
+    "per_page": "10",
+    "to": 3,
+    "total": 3
+}}
+  return y;
+};
+
+
+export const getAllDiscountsById = async (orgId, uid, payload) => {
+  try {
+    const docRef = doc(db, `Discounts`, uid)
+    const docSnap = await getDoc(docRef)
+
+    console.log('Document data:', docSnap.data());
+
+    if (docSnap.exists() && docSnap.data()) {
+      console.log('Brokerage details found:', docSnap.data());
+      let x =docSnap.data();
+      x.id = docSnap.id;
+      x.uuid = doc.id;
+      x.img = x['images[0]'];
+
+      return docSnap.data();
+    } else {
+      console.log('No brokerage details found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching brokerage details:', error);
+    throw error;
+  }
+};
+export const  createDiscountsDb = async (orgId, payload)  =>  {
+  try {
+    const filesCollectionRef = collection(db, `p_category`);
+    const { params } = payload;
+    params.status = 'published';
+
+    console.log('categories are ====>', params)
+    
+  const did = uuidv4()
+  const x = {
+    "created_at": Timestamp.now().toMillis(),
+    "updated_at": Timestamp.now().toMillis(),
+    "shop": null,
+    "children": [],
+    "parent": null,
+    "title": params['title[en]'],
+    "description": params['description[en]'],
+    // "title[en]": "Pies",
+    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
+ 
+    "id": did,
+    "uuid": did,
+    "keywords": params?.keywords,
+    "type": params?.type,
+    "input": 32767,
+    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
+    "active": true,
+    "status": "published",
+          "translation": {
+          "id": 18,
+          "locale": "en",
+          "title": "Commercial Ref"
+      },
+      "translations": [
+          {
+              "id": 18,
+              "locale": "en",
+              "title": "Commercial Ref1",
+              "description": params['description[en]']
+          }
+      ],
+      "locales": [
+          "en"
+      ],
+   
+  }
+
+    // const docRef = await addDoc(filesCollectionRef, {...x});
+    const docRef= await setDoc(doc(db, `Products`, did), x)
+    console.log('Files saved successfully with ID:', docRef);
+    return docRef;
+  } catch (error) {
+    console.error('Error saving files to Firestore:', error);
+    throw error;
+  }
+};
+
+export const updateDiscounts = async (
+  uid,params
+
+) => {
+  try {
+  
+console.log('params are ====>', uid,params)
+let x = params
+x['images[0]'] = ""
+
+
+    await updateDoc(doc(db, `p_category`, uid), {
+      title: x.title,
+      active: x.active
+    })
+    // enqueueSnackbar('Cost Sheet Updated for Customer', {
+    //   variant: 'success',
+    // })
+  } catch (error) {
+    console.log('Filed updated Cost sheet', error, {
+      ...data,
+    })
+  
+  }
+}
+export const deleteDiscounts= async (params) => {
+  console.log('delte user is ', params)
+  params.map(async(item) => {
+   await deleteDoc(doc(db, 'p_category', item))
+  })
+
+}
+
+// Extra values
+export const getAllValues = async (orgId, params) => {
+  console.log('params are ====>', params)
+  // const {params} = params
+  const filesQuery = query(
+    collection(db, `Values`),
+    // where('status', '==', params?.params?.status || 'published'),
+  );
+  const querySnapshot = await getDocs(filesQuery);
+  const files = querySnapshot.docs.map((doc) => {
+    let x = doc.data();
+    x.id = doc.id; 
+    x.uuid = doc.id;
+    return x;
+  });
+  
+  
+let y  = {data:files, 
+  "links": {
+    "first": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=1",
+    "last": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=2",
+    "prev": null,
+    "next": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=2"
+},
+"meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 2,
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=2",
+            "label": "2",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=2",
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values",
+    "per_page": "10",
+    "to": 10,
+    "total": 15
+}}
+  return y;
+};
+
+
+export const getAllValuesById = async (orgId, uid, payload) => {
+  try {
+    const docRef = doc(db, `p_category`, uid)
+    const docSnap = await getDoc(docRef)
+
+    console.log('Document data:', docSnap.data());
+
+    if (docSnap.exists() && docSnap.data()) {
+      console.log('Brokerage details found:', docSnap.data());
+      let x =docSnap.data();
+      x.id = docSnap.id;
+      x.uuid = doc.id;
+      x.img = x['images[0]'];
+
+      return docSnap.data();
+    } else {
+      console.log('No brokerage details found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching brokerage details:', error);
+    throw error;
+  }
+};
+export const  createValuesDb = async (orgId, payload)  =>  {
+  try {
+    const filesCollectionRef = collection(db, `p_category`);
+    const { params } = payload;
+    params.status = 'published';
+
+    console.log('categories are ====>', params)
+    
+  const did = uuidv4()
+  const x = {
+    "created_at": Timestamp.now().toMillis(),
+    "updated_at": Timestamp.now().toMillis(),
+    "shop": null,
+    "children": [],
+    "parent": null,
+    "title": params['title[en]'],
+    "description": params['description[en]'],
+    // "title[en]": "Pies",
+    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
+ 
+    "id": did,
+    "uuid": did,
+    "keywords": params?.keywords,
+    "type": params?.type,
+    "input": 32767,
+    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
+    "active": true,
+    "status": "published",
+          "translation": {
+          "id": 18,
+          "locale": "en",
+          "title": "Commercial Ref"
+      },
+      "translations": [
+          {
+              "id": 18,
+              "locale": "en",
+              "title": "Commercial Ref1",
+              "description": params['description[en]']
+          }
+      ],
+      "locales": [
+          "en"
+      ],
+   
+  }
+
+    // const docRef = await addDoc(filesCollectionRef, {...x});
+    const docRef= await setDoc(doc(db, `Values`, did), x)
+    console.log('Files saved successfully with ID:', docRef);
+    return docRef;
+  } catch (error) {
+    console.error('Error saving files to Firestore:', error);
+    throw error;
+  }
+};
+
+export const updateValues = async (
+  uid,params
+
+) => {
+  try {
+  
+console.log('params are ====>', uid,params)
+let x = params
+x['images[0]'] = ""
+
+
+    await updateDoc(doc(db, `p_category`, uid), {
+      title: x.title,
+      active: x.active
+    })
+    // enqueueSnackbar('Cost Sheet Updated for Customer', {
+    //   variant: 'success',
+    // })
+  } catch (error) {
+    console.log('Filed updated Cost sheet', error, {
+      ...data,
+    })
+  
+  }
+}
+export const deleteValues= async (params) => {
+  console.log('delte user is ', params)
+  params.map(async(item) => {
+   await deleteDoc(doc(db, 'p_category', item))
+  })
+
+}
+
+// Extra group
+export const getAllGroups = async (orgId, params) => {
+  console.log('params are ====>', params)
+  // const {params} = params
+  const filesQuery = query(
+    collection(db, `Groups`),
+    // where('status', '==', params?.params?.status || 'published'),
+  );
+  const querySnapshot = await getDocs(filesQuery);
+  const files = querySnapshot.docs.map((doc) => {
+    let x = doc.data();
+    x.id = doc.id; 
+    x.uuid = doc.id;
+    return x;
+  });
+  
+  
+let y  = {data:files, 
+  "links": {
+    "first": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=1",
+    "last": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=2",
+    "prev": null,
+    "next": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=2"
+},
+"meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 2,
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=2",
+            "label": "2",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values?page=2",
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/extra\/values",
+    "per_page": "10",
+    "to": 10,
+    "total": 15
+}}
+  return y;
+};
+
+
+export const getAllGroupsById = async (orgId, uid, payload) => {
+  try {
+    const docRef = doc(db, `p_category`, uid)
+    const docSnap = await getDoc(docRef)
+
+    console.log('Document data:', docSnap.data());
+
+    if (docSnap.exists() && docSnap.data()) {
+      console.log('Brokerage details found:', docSnap.data());
+      let x =docSnap.data();
+      x.id = docSnap.id;
+      x.uuid = doc.id;
+      x.img = x['images[0]'];
+
+      return docSnap.data();
+    } else {
+      console.log('No brokerage details found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching brokerage details:', error);
+    throw error;
+  }
+};
+export const  createGroupsDb = async (orgId, payload)  =>  {
+  try {
+    const filesCollectionRef = collection(db, `p_category`);
+    const { params } = payload;
+    params.status = 'published';
+
+    console.log('categories are ====>', params)
+    
+  const did = uuidv4()
+  const x = {
+    "created_at": Timestamp.now().toMillis(),
+    "updated_at": Timestamp.now().toMillis(),
+    "shop": null,
+    "children": [],
+    "parent": null,
+    "title": params['title[en]'],
+    "description": params['description[en]'],
+    // "title[en]": "Pies",
+    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
+ 
+    "id": did,
+    "uuid": did,
+    "keywords": params?.keywords,
+    "type": params?.type,
+    "input": 32767,
+    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
+    "active": true,
+    "status": "published",
+          "translation": {
+          "id": 18,
+          "locale": "en",
+          "title": "Commercial Ref"
+      },
+      "translations": [
+          {
+              "id": 18,
+              "locale": "en",
+              "title": "Commercial Ref1",
+              "description": params['description[en]']
+          }
+      ],
+      "locales": [
+          "en"
+      ],
+   
+  }
+
+    // const docRef = await addDoc(filesCollectionRef, {...x});
+    const docRef= await setDoc(doc(db, `Values`, did), x)
+    console.log('Files saved successfully with ID:', docRef);
+    return docRef;
+  } catch (error) {
+    console.error('Error saving files to Firestore:', error);
+    throw error;
+  }
+};
+
+export const updateGroups = async (
+  uid,params
+
+) => {
+  try {
+  
+console.log('params are ====>', uid,params)
+let x = params
+x['images[0]'] = ""
+
+
+    await updateDoc(doc(db, `p_category`, uid), {
+      title: x.title,
+      active: x.active
+    })
+    // enqueueSnackbar('Cost Sheet Updated for Customer', {
+    //   variant: 'success',
+    // })
+  } catch (error) {
+    console.log('Filed updated Cost sheet', error, {
+      ...data,
+    })
+  
+  }
+}
+export const deleteGroups= async (params) => {
+  console.log('delte user is ', params)
+  params.map(async(item) => {
+   await deleteDoc(doc(db, 'p_category', item))
+  })
+
+}
+
+// users
+export const getAllUsers = async (orgId, params) => {
+  console.log('params are ====>', params)
+  // const {params} = params
+  const filesQuery = query(
+    collection(db, `Users`),
+    // where('status', '==', params?.params?.status || 'published'),
+  );
+  const querySnapshot = await getDocs(filesQuery);
+  const files = querySnapshot.docs.map((doc) => {
+    let x = doc.data();
+    x.id = doc.id; 
+    x.uuid = doc.id;
+    return x;
+  });
+  
+  
+let y  = {data:files, 
+  "links": {
+    "first": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/users\/paginate?page=1",
+    "last": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/users\/paginate?page=1",
+    "prev": null,
+    "next": null
+},
+"meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/users\/paginate?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/users\/paginate",
+    "per_page": "10",
+    "to": 2,
+    "total": 2
+}}
+  return y;
+};
+
+
+export const getAllUsersById = async (orgId, uid, payload) => {
+  try {
+    const docRef = doc(db, `p_category`, uid)
+    const docSnap = await getDoc(docRef)
+
+    console.log('Document data:', docSnap.data());
+
+    if (docSnap.exists() && docSnap.data()) {
+      console.log('Brokerage details found:', docSnap.data());
+      let x =docSnap.data();
+      x.id = docSnap.id;
+      x.uuid = doc.id;
+      x.img = x['images[0]'];
+
+      return docSnap.data();
+    } else {
+      console.log('No brokerage details found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching brokerage details:', error);
+    throw error;
+  }
+};
+export const  createUsersDb = async (orgId, payload)  =>  {
+  try {
+    const filesCollectionRef = collection(db, `p_category`);
+    const { params } = payload;
+    params.status = 'published';
+
+    console.log('categories are ====>', params)
+    
+
+    // {title[en]: 'Restaurant Equipment', description[en]: 'Reliable Commercial Restaurant Kitchen Equipment For Every Application', keywords: 'equipment', images: Array(1), active: 1, …}
+    // active
+    // : 
+    // 1
+    // description[en]
+    // : 
+    // "Reliable Commercial Restaurant Kitchen Equipment For Every Application"
+    // images
+    // : 
+    // [{…}]
+    // images[0]
+    // : 
+    // "https://foodyman.s3.amazonaws.com/public/images/categories/103-e0bcb86b-a30c-49f6-ba27-8b6aa8c346e5.webp"
+    // keywords
+    // : 
+    // "equipment"
+    // parent_id
+    // : 
+    // null
+    // status
+    // : 
+    // "published"
+    // title[en]
+    // : 
+    // "Restaurant Equipment"
+    // type
+    // : 
+    // "main"}
+
+// {  //     "id": 17,
+  //     "uuid": "c0a6605b-d97e-4f0c-bf47-465c0a114528",
+  //  "input": 32767,
+  //     "img": "https:\/\/foodyman.s3.amazonaws.com\/public\/images\/categories\/103-1682503302.webp",
+    //     "created_at": "2023-04-26 09:01:49Z",
+  //     "updated_at": "2023-09-29 11:55:43Z",
+  // "shop": null,
+  // "children": [],
+  //     "parent": null
+    //     "translations": [
+  //         {
+  //             "id": 18,
+  //             "locale": "en",
+  //             "title": "Pies",
+  //             "description": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture"
+  //         }
+  //     ],
+  //     "locales": [
+  //         "en"
+  //     ],
+// }
+    
+  //   {
+  //     "id": 17,
+  //     "uuid": "c0a6605b-d97e-4f0c-bf47-465c0a114528",
+  //     "keywords": "Pies",
+  //     "type": "main",
+  //     "input": 32767,
+  //     "img": "https:\/\/foodyman.s3.amazonaws.com\/public\/images\/categories\/103-1682503302.webp",
+  //     "active": true,
+  //     "status": "published",
+  //     "created_at": "2023-04-26 09:01:49Z",
+  //     "updated_at": "2023-09-29 11:55:43Z",
+  //     "shop": null,
+  //     "translation": {
+  //         "id": 18,
+  //         "locale": "en",
+  //         "title": "Pies"
+  //     },
+  //     "translations": [
+  //         {
+  //             "id": 18,
+  //             "locale": "en",
+  //             "title": "Pies",
+  //             "description": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture"
+  //         }
+  //     ],
+  //     "locales": [
+  //         "en"
+  //     ],
+  //     "children": [],
+  //     "parent": null
+  // }
+  const did = uuidv4()
+  const x = {
+    "created_at": Timestamp.now().toMillis(),
+    "updated_at": Timestamp.now().toMillis(),
+    "shop": null,
+    "children": [],
+    "parent": null,
+    "title": params['title[en]'],
+    "description": params['description[en]'],
+    // "title[en]": "Pies",
+    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
+ 
+    "id": did,
+    "uuid": did,
+    "keywords": params?.keywords,
+    "type": params?.type,
+    "input": 32767,
+    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
+    "active": true,
+    "status": "published",
+          "translation": {
+          "id": 18,
+          "locale": "en",
+          "title": "Commercial Ref"
+      },
+      "translations": [
+          {
+              "id": 18,
+              "locale": "en",
+              "title": "Commercial Ref1",
+              "description": params['description[en]']
+          }
+      ],
+      "locales": [
+          "en"
+      ],
+   
+  }
+
+    // const docRef = await addDoc(filesCollectionRef, {...x});
+    const docRef= await setDoc(doc(db, `p_category`, did), x)
+    console.log('Files saved successfully with ID:', docRef);
+    return docRef;
+  } catch (error) {
+    console.error('Error saving files to Firestore:', error);
+    throw error;
+  }
+};
+
+export const updateUsers = async (
+  uid,params
+
+) => {
+  try {
+  
+console.log('params are ====>', uid,params)
+let x = params
+x['images[0]'] = ""
+
+
+    await updateDoc(doc(db, `p_category`, uid), {
+      title: x.title,
+      active: x.active
+    })
+    // enqueueSnackbar('Cost Sheet Updated for Customer', {
+    //   variant: 'success',
+    // })
+  } catch (error) {
+    console.log('Filed updated Cost sheet', error, {
+      ...data,
+    })
+  
+  }
+}
+export const deleteUsers= async (params) => {
+  console.log('delte user is ', params)
+  params.map(async(item) => {
+   await deleteDoc(doc(db, 'p_category', item))
+  })
+
+}
+
+// delivery
+export const getAllDeliverymans = async (orgId, params) => {
+  console.log('params are ====>', params)
+  // const {params} = params
+  const filesQuery = query(
+    collection(db, `Deliverymans`),
+    // where('status', '==', params?.params?.status || 'published'),
+  );
+  const querySnapshot = await getDocs(filesQuery);
+  const files = querySnapshot.docs.map((doc) => {
+    let x = doc.data();
+    x.id = doc.id; 
+    x.uuid = doc.id;
+    return x;
+  });
+  
+  
+let y  = {data:files, 
+  "links": {
+    "first": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/deliverymans\/paginate?page=1",
+    "last": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/deliverymans\/paginate?page=1",
+    "prev": null,
+    "next": null
+},
+"meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/deliverymans\/paginate?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/deliverymans\/paginate",
+    "per_page": "10",
+    "to": 2,
+    "total": 2
+}}
+  return y;
+};
+export const getAllDeliverymansSnap = async (params, callback) => {
+
+  console.log('snap are ====>', params)
+
+
+    try {
+      
+   
+  
+    const filesQuery1 = query(
+      collection(db, `brands`),
+      where("status", "==", params?.params?.status || "published")
+    );
+    const itemsQuery1 = query(
+      collection(db, 'brands'),
+
+    )
+    // return await onSnapshot(itemsQuery1, callback)
+  
+    // Subscribe to real-time updates
+    const unsubscribe = onSnapshot(filesQuery1, (querySnapshot) => {
+      const files = querySnapshot.docs.map((doc) => {
+        let x = doc.data();
+        x.id = doc.id;
+        x.uuid = doc.id;
+        return x;
+      });
+  
+      let response = {
+        data: files,
+        meta: {
+          current_page: 1,
+          from: 1,
+          last_page: 1,
+          links: [
+            { url: null, label: "&laquo; Previous", active: false },
+            {
+              url: "https://single-api.foodyman.org/api/v1/dashboard/admin/brands/paginate?page=1",
+              label: "1",
+              active: true,
+            },
+            { url: null, label: "Next &raquo;", active: false },
+          ],
+          path: "https://single-api.foodyman.org/api/v1/dashboard/admin/brands/paginate",
+          per_page: "10",
+          to: files.length,
+          total: files.length,
+        },
+      };
+  
+      // Call the provided callback function with updated data
+      console.log('my response is', response)
+      callback(response);
+    });
+  
+    // Return the unsubscribe function to stop listening when needed
+    return unsubscribe;
+  
+  } catch (error) {
+      console.error('Error fetching brands:', error);
+  }
+  return     
+  // const {params} = params
+
+};
+
+export const getAllDeliverymansById = async (orgId, uid, payload) => {
+  try {
+    const docRef = doc(db, `p_category`, uid)
+    const docSnap = await getDoc(docRef)
+
+    console.log('Document data:', docSnap.data());
+
+    if (docSnap.exists() && docSnap.data()) {
+      console.log('Brokerage details found:', docSnap.data());
+      let x =docSnap.data();
+      x.id = docSnap.id;
+      x.uuid = doc.id;
+      x.img = x['images[0]'];
+
+      return docSnap.data();
+    } else {
+      console.log('No brokerage details found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching brokerage details:', error);
+    throw error;
+  }
+};
+export const  createDeliverymansDb = async (orgId, payload)  =>  {
+  try {
+    const filesCollectionRef = collection(db, `p_category`);
+    const { params } = payload;
+    params.status = 'published';
+
+    console.log('categories are ====>', params)
+    
+  const did = uuidv4()
+  const x = {
+    "created_at": Timestamp.now().toMillis(),
+    "updated_at": Timestamp.now().toMillis(),
+    "shop": null,
+    "children": [],
+    "parent": null,
+    "title": params['title[en]'],
+    "description": params['description[en]'],
+    // "title[en]": "Pies",
+    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
+ 
+    "id": did,
+    "uuid": did,
+    "keywords": params?.keywords,
+    "type": params?.type,
+    "input": 32767,
+    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
+    "active": true,
+    "status": "published",
+          "translation": {
+          "id": 18,
+          "locale": "en",
+          "title": "Commercial Ref"
+      },
+      "translations": [
+          {
+              "id": 18,
+              "locale": "en",
+              "title": "Commercial Ref1",
+              "description": params['description[en]']
+          }
+      ],
+      "locales": [
+          "en"
+      ],
+   
+  }
+
+    // const docRef = await addDoc(filesCollectionRef, {...x});
+    const docRef= await setDoc(doc(db, `Products`, did), x)
+    console.log('Files saved successfully with ID:', docRef);
+    return docRef;
+  } catch (error) {
+    console.error('Error saving files to Firestore:', error);
+    throw error;
+  }
+};
+
+export const updateDeliverymans = async (
+  uid,params
+
+) => {
+  try {
+  
+console.log('params are ====>', uid,params)
+let x = params
+x['images[0]'] = ""
+
+
+    await updateDoc(doc(db, `p_category`, uid), {
+      title: x.title,
+      active: x.active
+    })
+    // enqueueSnackbar('Cost Sheet Updated for Customer', {
+    //   variant: 'success',
+    // })
+  } catch (error) {
+    console.log('Filed updated Cost sheet', error, {
+      ...data,
+    })
+  
+  }
+}
+export const deleteDeliverymans= async (params) => {
+  console.log('delte user is ', params)
+  params.map(async(item) => {
+   await deleteDoc(doc(db, 'p_category', item))
+  })
+
+}
+
+
+
 // order
 export const getAllOrder = async (orgId, params) => {
   console.log('params are ====>', params)
@@ -768,15 +2124,13 @@ export const deleteOrder= async (params) => {
 }
 
 
-
-
-// review
+// reviews
 export const getAllReviews = async (orgId, params) => {
   console.log('params are ====>', params)
   // const {params} = params
   const filesQuery = query(
-    collection(db, `p_reviews`),
-    where('status', '==', params?.params?.status || 'published'),
+    collection(db, `Reviews`),
+    // where('status', '==', params?.params?.status || 'published'),
   );
   const querySnapshot = await getDocs(filesQuery);
   const files = querySnapshot.docs.map((doc) => {
@@ -788,31 +2142,37 @@ export const getAllReviews = async (orgId, params) => {
   
   
 let y  = {data:files, 
-   "meta": {
-  "current_page": 1,
-  "from": 1,
-  "last_page": 1,
-  "links": [
-      {
-          "url": null,
-          "label": "&laquo; Previous",
-          "active": false
-      },
-      {
-          "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/brands\/paginate?page=1",
-          "label": "1",
-          "active": true
-      },
-      {
-          "url": null,
-          "label": "Next &raquo;",
-          "active": false
-      }
-  ],
-  "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/brands\/paginate",
-  "per_page": "1000",
-  "to": files.length,
-  "total": files.length
+  "links": {
+    "first": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/reviews\/paginate?page=1",
+    "last": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/reviews\/paginate?page=1",
+    "prev": null,
+    "next": null
+},
+"meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/reviews\/paginate?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/reviews\/paginate",
+    "per_page": "10",
+    "to": 7,
+    "total": 7
 }}
   return y;
 };
@@ -820,7 +2180,7 @@ let y  = {data:files,
 
 export const getAllReviewsById = async (orgId, uid, payload) => {
   try {
-    const docRef = doc(db, `p_reviews`, uid)
+    const docRef = doc(db, `p_category`, uid)
     const docSnap = await getDoc(docRef)
 
     console.log('Document data:', docSnap.data());
@@ -842,13 +2202,13 @@ export const getAllReviewsById = async (orgId, uid, payload) => {
     throw error;
   }
 };
-export const  createReviewDb = async (orgId, payload)  =>  {
+export const  createReviewsDb = async (orgId, payload)  =>  {
   try {
-    const filesCollectionRef = collection(db, `p_reviews`);
+    const filesCollectionRef = collection(db, `p_category`);
     const { params } = payload;
     params.status = 'published';
 
-    console.log('reviews are ====>', params)
+    console.log('categories are ====>', params)
     
   const did = uuidv4()
   const x = {
@@ -890,7 +2250,7 @@ export const  createReviewDb = async (orgId, payload)  =>  {
   }
 
     // const docRef = await addDoc(filesCollectionRef, {...x});
-    const docRef= await setDoc(doc(db, `p_category`, did), x)
+    const docRef= await setDoc(doc(db, `Products`, did), x)
     console.log('Files saved successfully with ID:', docRef);
     return docRef;
   } catch (error) {
@@ -899,7 +2259,7 @@ export const  createReviewDb = async (orgId, payload)  =>  {
   }
 };
 
-export const updateReview = async (
+export const updateReviews = async (
   uid,params
 
 ) => {
@@ -910,7 +2270,7 @@ let x = params
 x['images[0]'] = ""
 
 
-    await updateDoc(doc(db, `p_reviews`, uid), {
+    await updateDoc(doc(db, `p_category`, uid), {
       title: x.title,
       active: x.active
     })
@@ -924,13 +2284,14 @@ x['images[0]'] = ""
   
   }
 }
-export const deleteReview= async (params) => {
+export const deleteReviews= async (params) => {
   console.log('delte user is ', params)
   params.map(async(item) => {
-   await deleteDoc(doc(db, 'p_reviews', item))
+   await deleteDoc(doc(db, 'p_category', item))
   })
 
 }
+
 
 
 // banner
