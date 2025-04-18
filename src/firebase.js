@@ -960,53 +960,50 @@ export const getAllDiscountsById = async (orgId, uid, payload) => {
 };
 export const  createDiscountsDb = async (orgId, payload)  =>  {
   try {
-    const filesCollectionRef = collection(db, `p_category`);
+    const filesCollectionRef = collection(db, `p_discounts`);
     const { params } = payload;
-    params.status = 'published';
-
-    console.log('categories are ====>', params)
-    
-  const did = uuidv4()
-  const x = {
-    "created_at": Timestamp.now().toMillis(),
-    "updated_at": Timestamp.now().toMillis(),
-    "shop": null,
-    "children": [],
-    "parent": null,
-    "title": params['title[en]'],
-    "description": params['description[en]'],
-    // "title[en]": "Pies",
-    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
- 
-    "id": did,
-    "uuid": did,
-    "keywords": params?.keywords,
-    "type": params?.type,
-    "input": 32767,
-    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
-    "active": true,
-    "status": "published",
-          "translation": {
-          "id": 18,
-          "locale": "en",
-          "title": "Commercial Ref"
-      },
-      "translations": [
-          {
-              "id": 18,
-              "locale": "en",
-              "title": "Commercial Ref1",
-              "description": params['description[en]']
-          }
-      ],
-      "locales": [
-          "en"
-      ],
+    const myId = uuidv4()
+    // discounts are ====> 
+    //   {price: 8000, type: 'percent', products: Array(1), start: '2025-04-17', end: '2025-04-18'}
+    //   end
+    //   : 
+    //   "2025-04-18"
+    //   price
+    //   : 
+    //   8000
+    //   products
+    //   : 
+    //   [557]
+    //   start
+    //   : 
+    //   "2025-04-17"
+    //   type
+    //   : 
+    //   "percent"
+    //   [[Prototype]]
+    //   : 
+    //   Object
+    let input ={
+            "id": myId,
+            "shop_id": params.products[0],
+            "type": params.type,
+            "price": params.price,
+            "start": params.start,
+            "end": params.end,
+            "active": true,
+            "created_at": Timestamp.now().toMillis(),
+            "updated_at": Timestamp.now().toMillis(),
+        }
+    console.log('discounts are ====>', params)
    
-  }
+
+  
+    
+ 
+  
 
     // const docRef = await addDoc(filesCollectionRef, {...x});
-    const docRef= await setDoc(doc(db, `Products`, did), x)
+    const docRef= await setDoc(doc(db, `p_discounts`, myId), input)
     console.log('Files saved successfully with ID:', docRef);
     return docRef;
   } catch (error) {
@@ -1026,7 +1023,7 @@ let x = params
 x['images[0]'] = ""
 
 
-    await updateDoc(doc(db, `p_category`, uid), {
+    await updateDoc(doc(db, `p_discounts`, uid), {
       title: x.title,
       active: x.active
     })
@@ -1043,10 +1040,11 @@ x['images[0]'] = ""
 export const deleteDiscounts= async (params) => {
   console.log('delte user is ', params)
   params.map(async(item) => {
-   await deleteDoc(doc(db, 'p_category', item))
+   await deleteDoc(doc(db, 'p_discounts', item))
   })
 
 }
+
 
 // Extra values
 export const getAllValues = async (orgId, params) => {
