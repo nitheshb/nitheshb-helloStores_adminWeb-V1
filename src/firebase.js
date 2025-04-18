@@ -790,7 +790,7 @@ export const getAllProductsById = async (orgId, uid, payload) => {
 };
 export const  createProductsDb = async (orgId, payload)  =>  {
   try {
-    const filesCollectionRef = collection(db, `p_category`);
+    const filesCollectionRef = collection(db, `p_Products`);
     const { params } = payload;
     params.status = 'published';
 
@@ -1133,53 +1133,25 @@ export const getAllValuesById = async (orgId, uid, payload) => {
 };
 export const  createValuesDb = async (orgId, payload)  =>  {
   try {
-    const filesCollectionRef = collection(db, `p_category`);
+    const filesCollectionRef = collection(db, `p_Values`);
     const { params } = payload;
-    params.status = 'published';
+    const myId=uuidv4()
 
-    console.log('categories are ====>', params)
-    
-  const did = uuidv4()
-  const x = {
-    "created_at": Timestamp.now().toMillis(),
-    "updated_at": Timestamp.now().toMillis(),
-    "shop": null,
-    "children": [],
-    "parent": null,
-    "title": params['title[en]'],
-    "description": params['description[en]'],
-    // "title[en]": "Pies",
-    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
- 
-    "id": did,
-    "uuid": did,
-    "keywords": params?.keywords,
-    "type": params?.type,
-    "input": 32767,
-    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
-    "active": true,
-    "status": "published",
-          "translation": {
-          "id": 18,
-          "locale": "en",
-          "title": "Commercial Ref"
-      },
-      "translations": [
-          {
-              "id": 18,
-              "locale": "en",
-              "title": "Commercial Ref1",
-              "description": params['description[en]']
-          }
-      ],
-      "locales": [
-          "en"
-      ],
-   
+    let input=
+    {
+      "id": myId,
+      "extra_group_id": params.extra_group_id,
+      "value": params.value,
+      "active": true
   }
 
+ 
+
+    console.log('Values are ====>', params,input)
+   
+
     // const docRef = await addDoc(filesCollectionRef, {...x});
-    const docRef= await setDoc(doc(db, `Values`, did), x)
+    const docRef= await setDoc(doc(db, `p_Values`, myId), input)
     console.log('Files saved successfully with ID:', docRef);
     return docRef;
   } catch (error) {
@@ -1306,53 +1278,21 @@ export const getAllGroupsById = async (orgId, uid, payload) => {
 };
 export const  createGroupsDb = async (orgId, payload)  =>  {
   try {
-    const filesCollectionRef = collection(db, `p_category`);
+    const filesCollectionRef = collection(db, `p_groupValues`);
     const { params } = payload;
-    params.status = 'published';
-
-    console.log('categories are ====>', params)
-    
-  const did = uuidv4()
-  const x = {
-    "created_at": Timestamp.now().toMillis(),
-    "updated_at": Timestamp.now().toMillis(),
-    "shop": null,
-    "children": [],
-    "parent": null,
-    "title": params['title[en]'],
-    "description": params['description[en]'],
-    // "title[en]": "Pies",
-    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
- 
-    "id": did,
-    "uuid": did,
-    "keywords": params?.keywords,
-    "type": params?.type,
-    "input": 32767,
-    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
-    "active": true,
-    "status": "published",
-          "translation": {
-          "id": 18,
-          "locale": "en",
-          "title": "Commercial Ref"
-      },
-      "translations": [
-          {
-              "id": 18,
-              "locale": "en",
-              "title": "Commercial Ref1",
-              "description": params['description[en]']
-          }
-      ],
-      "locales": [
-          "en"
-      ],
-   
+    const myId = uuidv4()
+    let input=
+    {
+      "id": myId,
+      "type": params.type,
+      "active": true
   }
+    
+    console.log('groupValues are ====>', params,input)
+   
 
     // const docRef = await addDoc(filesCollectionRef, {...x});
-    const docRef= await setDoc(doc(db, `Values`, did), x)
+    const docRef= await setDoc(doc(db, `p_groupValues`, myId), input)
     console.log('Files saved successfully with ID:', docRef);
     return docRef;
   } catch (error) {
@@ -1480,89 +1420,6 @@ export const  createUsersDb = async (orgId, payload)  =>  {
 
     console.log('categories are ====>', params)
     
-
-    // {title[en]: 'Restaurant Equipment', description[en]: 'Reliable Commercial Restaurant Kitchen Equipment For Every Application', keywords: 'equipment', images: Array(1), active: 1, …}
-    // active
-    // : 
-    // 1
-    // description[en]
-    // : 
-    // "Reliable Commercial Restaurant Kitchen Equipment For Every Application"
-    // images
-    // : 
-    // [{…}]
-    // images[0]
-    // : 
-    // "https://foodyman.s3.amazonaws.com/public/images/categories/103-e0bcb86b-a30c-49f6-ba27-8b6aa8c346e5.webp"
-    // keywords
-    // : 
-    // "equipment"
-    // parent_id
-    // : 
-    // null
-    // status
-    // : 
-    // "published"
-    // title[en]
-    // : 
-    // "Restaurant Equipment"
-    // type
-    // : 
-    // "main"}
-
-// {  //     "id": 17,
-  //     "uuid": "c0a6605b-d97e-4f0c-bf47-465c0a114528",
-  //  "input": 32767,
-  //     "img": "https:\/\/foodyman.s3.amazonaws.com\/public\/images\/categories\/103-1682503302.webp",
-    //     "created_at": "2023-04-26 09:01:49Z",
-  //     "updated_at": "2023-09-29 11:55:43Z",
-  // "shop": null,
-  // "children": [],
-  //     "parent": null
-    //     "translations": [
-  //         {
-  //             "id": 18,
-  //             "locale": "en",
-  //             "title": "Pies",
-  //             "description": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture"
-  //         }
-  //     ],
-  //     "locales": [
-  //         "en"
-  //     ],
-// }
-    
-  //   {
-  //     "id": 17,
-  //     "uuid": "c0a6605b-d97e-4f0c-bf47-465c0a114528",
-  //     "keywords": "Pies",
-  //     "type": "main",
-  //     "input": 32767,
-  //     "img": "https:\/\/foodyman.s3.amazonaws.com\/public\/images\/categories\/103-1682503302.webp",
-  //     "active": true,
-  //     "status": "published",
-  //     "created_at": "2023-04-26 09:01:49Z",
-  //     "updated_at": "2023-09-29 11:55:43Z",
-  //     "shop": null,
-  //     "translation": {
-  //         "id": 18,
-  //         "locale": "en",
-  //         "title": "Pies"
-  //     },
-  //     "translations": [
-  //         {
-  //             "id": 18,
-  //             "locale": "en",
-  //             "title": "Pies",
-  //             "description": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture"
-  //         }
-  //     ],
-  //     "locales": [
-  //         "en"
-  //     ],
-  //     "children": [],
-  //     "parent": null
-  // }
   const did = uuidv4()
   const x = {
     "created_at": Timestamp.now().toMillis(),

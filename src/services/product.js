@@ -1,5 +1,5 @@
 import request from './request';
-import{getAllProducts, getAllproductsSnap, getAllProductsById, createProductDb, updateProducts, deleteProducts} from 'firebase.js';
+import{getAllProducts, getAllproductsSnap, getAllProductsById, createProductsDb, updateProducts, deleteProducts} from 'firebase.js';
 import { update } from 'lodash';
               
 const productService = {
@@ -10,7 +10,7 @@ const productService = {
   export: (params) =>
     request.get(`dashboard/admin/products/export`, { params }),
   import: (data) => request.post('dashboard/admin/products/import', data),
-  create: (params) => request.post(`dashboard/admin/products`, {}, { params }),
+  // create: (params) => request.post(`dashboard/admin/products`, {}, { params }),
   // update: (uuid, params) =>
   //   request.put(`dashboard/admin/products/${uuid}`, {}, { params }),
   // delete: (params) =>
@@ -37,9 +37,9 @@ const productService = {
     request.post(`dashboard/admin/products/parent/sync`, data, {}),
 
   //  getAll: (params) => getAllproducts('spark', { params }),
-    getAllSnap: (params, callback) => getAllProducts({ params }, callback),
+ 
     getById: (id, params) => getAllProductsById('spark', id, { params }),
-    // create: (params) => createProductDb('spark', { params }),
+     create: (params) => createProductsDb('spark', { params }),
     update: (id, params) => updateProducts( id,params ),
     delete: (params) => deleteProducts(params),
 };

@@ -35,17 +35,17 @@ const extraService = {
   // new
   //  getAll: (params) => getAllValues('spark', { params }),
    
-    getById: (id, params) => getAllValuesById('spark', id, { params }),
-    create: (params) => createValuesDb('spark', { params }),
-    update: (id, params) => updateValues( id,params ),
-    delete: (params) => deleteValues(params),
+  getValueById: (id, params) => getAllValuesById('spark', id, { params }),
+    createValue: (params) => createValuesDb('spark', { params }),
+    updateValue: (id, params) => updateValues( id,params ),
+    deleteValue: (params) => deleteValues(params),
 
     // getAll: (params) => getAllGroups('spark', { params }),
    
-    getById: (id, params) => getAllGroupsById('spark', id, { params }),
-    create: (params) => createGroupsDb('spark', { params }),
-    update: (id, params) => updateGroups( id,params ),
-    delete: (params) => deleteGroups(params),
+    getGroupById: (id, params) => getAllGroupsById('spark', id, { params }),
+    createGroup: (params) => createGroupsDb('spark', { params }),
+    updateGroup: (id, params) => updateGroups( id,params ),
+    deleteGroup: (params) => deleteGroups(params),
 };
 
 export default extraService;
