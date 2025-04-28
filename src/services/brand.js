@@ -1,4 +1,4 @@
-import { createBrandDb, getAllBrands ,getAllBrandsSnap,  getAllBrandsById, updateBrand, deleteBrand} from 'firebase.js';
+import { createBrandDb, getAllBrands ,getAllBrandsSnap,  getAllBrandsById, updateBrand, deleteBrand} from './dbQueries/q_brand';
 import request from './request';
 import { update } from 'lodash';
 
