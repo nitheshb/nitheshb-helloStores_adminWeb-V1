@@ -792,9 +792,10 @@ export const  createProductsDb = async (orgId, payload)  =>  {
   try {
     const filesCollectionRef = collection(db, `p_Products`);
     const { params } = payload;
-    params.status = 'published';
+    const myId = uuidv4()
+    let input =
 
-    console.log('categories are ====>', params)
+    console.log('Products are ====>', params)
     
   const did = uuidv4()
   const x = {
@@ -960,53 +961,50 @@ export const getAllDiscountsById = async (orgId, uid, payload) => {
 };
 export const  createDiscountsDb = async (orgId, payload)  =>  {
   try {
-    const filesCollectionRef = collection(db, `p_category`);
+    const filesCollectionRef = collection(db, `p_discounts`);
     const { params } = payload;
-    params.status = 'published';
-
-    console.log('categories are ====>', params)
-    
-  const did = uuidv4()
-  const x = {
-    "created_at": Timestamp.now().toMillis(),
-    "updated_at": Timestamp.now().toMillis(),
-    "shop": null,
-    "children": [],
-    "parent": null,
-    "title": params['title[en]'],
-    "description": params['description[en]'],
-    // "title[en]": "Pies",
-    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
- 
-    "id": did,
-    "uuid": did,
-    "keywords": params?.keywords,
-    "type": params?.type,
-    "input": 32767,
-    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
-    "active": true,
-    "status": "published",
-          "translation": {
-          "id": 18,
-          "locale": "en",
-          "title": "Commercial Ref"
-      },
-      "translations": [
-          {
-              "id": 18,
-              "locale": "en",
-              "title": "Commercial Ref1",
-              "description": params['description[en]']
-          }
-      ],
-      "locales": [
-          "en"
-      ],
+    const myId = uuidv4()
+    // discounts are ====> 
+    //   {price: 8000, type: 'percent', products: Array(1), start: '2025-04-17', end: '2025-04-18'}
+    //   end
+    //   : 
+    //   "2025-04-18"
+    //   price
+    //   : 
+    //   8000
+    //   products
+    //   : 
+    //   [557]
+    //   start
+    //   : 
+    //   "2025-04-17"
+    //   type
+    //   : 
+    //   "percent"
+    //   [[Prototype]]
+    //   : 
+    //   Object
+    let input ={
+            "id": myId,
+            "shop_id": params.products[0],
+            "type": params.type,
+            "price": params.price,
+            "start": params.start,
+            "end": params.end,
+            "active": true,
+            "created_at": Timestamp.now().toMillis(),
+            "updated_at": Timestamp.now().toMillis(),
+        }
+    console.log('discounts are ====>', params)
    
-  }
+
+  
+    
+ 
+  
 
     // const docRef = await addDoc(filesCollectionRef, {...x});
-    const docRef= await setDoc(doc(db, `Products`, did), x)
+    const docRef= await setDoc(doc(db, `p_discounts`, myId), input)
     console.log('Files saved successfully with ID:', docRef);
     return docRef;
   } catch (error) {
@@ -1014,6 +1012,7 @@ export const  createDiscountsDb = async (orgId, payload)  =>  {
     throw error;
   }
 };
+
 
 export const updateDiscounts = async (
   uid,params
@@ -1137,10 +1136,12 @@ export const  createValuesDb = async (orgId, payload)  =>  {
     const { params } = payload;
     const myId=uuidv4()
 
+   
+
     let input=
     {
       "id": myId,
-      "extra_group_id": params.extra_group_id,
+      "extra_group_id": myId,
       "value": params.value,
       "active": true
   }
@@ -1337,9 +1338,11 @@ export const deleteGroups= async (params) => {
 // users
 export const getAllUsers = async (orgId, params) => {
   console.log('params are ====>', params)
+  debugger;
   // const {params} = params
   const filesQuery = query(
     collection(db, `Users`),
+    
     // where('status', '==', params?.params?.status || 'published'),
   );
   const querySnapshot = await getDocs(filesQuery);
@@ -1414,53 +1417,46 @@ export const getAllUsersById = async (orgId, uid, payload) => {
 };
 export const  createUsersDb = async (orgId, payload)  =>  {
   try {
-    const filesCollectionRef = collection(db, `p_category`);
+    const filesCollectionRef = collection(db, `p_Users`);
     const { params } = payload;
-    params.status = 'published';
-
-    console.log('categories are ====>', params)
-    
-  const did = uuidv4()
-  const x = {
-    "created_at": Timestamp.now().toMillis(),
-    "updated_at": Timestamp.now().toMillis(),
-    "shop": null,
-    "children": [],
-    "parent": null,
-    "title": params['title[en]'],
-    "description": params['description[en]'],
-    // "title[en]": "Pies",
-    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
- 
-    "id": did,
-    "uuid": did,
-    "keywords": params?.keywords,
-    "type": params?.type,
-    "input": 32767,
-    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
-    "active": true,
-    "status": "published",
-          "translation": {
-          "id": 18,
-          "locale": "en",
-          "title": "Commercial Ref"
+    const myId=uuidv4()
+    let input=
+    {
+      "id": myId,
+      "uuid": myId,
+      "firstname": params.firstname,
+      "lastname":params.lastname,
+      "empty_p": 0,
+      "email":params.email,
+      "phone": params.phone,
+      "birthday":params.birthday,
+      "gender": params.gender,
+      "active": 1,
+      "img": "https://api.hellostores.in/storage/images/users/103-6a3b8ff2-0c06-4877-b53e-8fae645dbb6d.webp",
+      "my_referral": "IHVXZYBA",
+      "role": "user",
+      "email_verified_at": Timestamp.now().toMillis(),
+      "phone_verified_at":Timestamp.now().toMillis(),
+      "registered_at": Timestamp.now().toMillis(),
+      "created_at": Timestamp.now().toMillis(),
+      "updated_at": Timestamp.now().toMillis(),
+      "wallet": {
+          "id": myId,
+          "uuid": myId,
+        "user_id": params.userId || null,
+          "price": params.price ?? 0,
+          "symbol": "$",
+          "created_at": Timestamp.now().toMillis(),
+          "updated_at": Timestamp.now().toMillis()
       },
-      "translations": [
-          {
-              "id": 18,
-              "locale": "en",
-              "title": "Commercial Ref1",
-              "description": params['description[en]']
-          }
-      ],
-      "locales": [
-          "en"
-      ],
-   
+          "invitations": []
   }
 
+  
+  console.log('Users are ====>', params,input)
+  debugger;
     // const docRef = await addDoc(filesCollectionRef, {...x});
-    const docRef= await setDoc(doc(db, `p_category`, did), x)
+    const docRef= await setDoc(doc(db, `p_Users`, myId), input)
     console.log('Files saved successfully with ID:', docRef);
     return docRef;
   } catch (error) {
@@ -1646,53 +1642,65 @@ export const getAllDeliverymansById = async (orgId, uid, payload) => {
 };
 export const  createDeliverymansDb = async (orgId, payload)  =>  {
   try {
-    const filesCollectionRef = collection(db, `p_category`);
+    const filesCollectionRef = collection(db, `p_Delivarymans`);  
     const { params } = payload;
-    params.status = 'published';
-
-    console.log('categories are ====>', params)
-    
-  const did = uuidv4()
-  const x = {
-    "created_at": Timestamp.now().toMillis(),
-    "updated_at": Timestamp.now().toMillis(),
-    "shop": null,
-    "children": [],
-    "parent": null,
-    "title": params['title[en]'],
-    "description": params['description[en]'],
-    // "title[en]": "Pies",
-    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
- 
-    "id": did,
-    "uuid": did,
-    "keywords": params?.keywords,
-    "type": params?.type,
-    "input": 32767,
-    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
-    "active": true,
-    "status": "published",
-          "translation": {
-          "id": 18,
-          "locale": "en",
-          "title": "Commercial Ref"
+    const myId = uuidv4()
+    let input=
+    {
+      "id": myId,
+      "uuid": myId,
+      "firstname": params.firstname,
+      "lastname": params.lastname,
+      "empty_p": 0,
+      "email": params.email,
+      "isWork": 1,
+      "phone": params.phone,
+      "birthday": params.birthday,
+      "gender": params.gender,
+      "active": 1,
+      "img": "https:\/\/api.hellostores.in\/storage\/images\/users\/103-bc5ec3b0-2b34-4d01-bbd2-ecfbc8ea193b.webp",
+      "my_referral": "6C7QGKXW",
+      "role": "deliveryman",
+      "email_verified_at": Timestamp.now().toMillis(),
+      "phone_verified_at":Timestamp.now().toMillis(),
+      "registered_at": Timestamp.now().toMillis(),
+      "created_at": Timestamp.now().toMillis(),
+      "updated_at":Timestamp.now().toMillis(),
+      "deliveryman_orders": [],
+      "wallet": {
+          "id": myId,
+          "uuid":myId,
+          "user_id":  params.userId || null,
+          "price": params.price ?? 0,
+          "symbol": "$",
+          "created_at": Timestamp.now().toMillis(),
+          "updated_at": Timestamp.now().toMillis()
       },
-      "translations": [
-          {
-              "id": 18,
-              "locale": "en",
-              "title": "Commercial Ref1",
-              "description": params['description[en]']
-          }
-      ],
-      "locales": [
-          "en"
-      ],
-   
+      "assign_reviews": [],
+      "delivery_man_setting": {
+          "id": myId,
+          "user_id": params.userId || null,
+          "type_of_technique":params.type_of_technique,
+          "brand": params.brand,
+          "model": params.model,
+          "number":params.number,
+          "color": params.color,
+          "online": 0,
+          "location": {
+              "latitude":params.latitude,
+              "longitude":params.longitude,
+          },
+          "created_at":Timestamp.now().toMillis(),
+          "updated_at":Timestamp.now().toMillis()
+      }
   }
 
+    console.log('Deliverymans are ====>', params,input)
+    
+  
+
     // const docRef = await addDoc(filesCollectionRef, {...x});
-    const docRef= await setDoc(doc(db, `Products`, did), x)
+    const docRef= await setDoc(doc(db, `p_Deliverymans`, myId), input)
     console.log('Files saved successfully with ID:', docRef);
     return docRef;
   } catch (error) {
@@ -2059,62 +2067,7 @@ export const getAllReviewsById = async (orgId, uid, payload) => {
     throw error;
   }
 };
-export const  createReviewsDb = async (orgId, payload)  =>  {
-  try {
-    const filesCollectionRef = collection(db, `p_category`);
-    const { params } = payload;
-    params.status = 'published';
 
-    console.log('categories are ====>', params)
-    
-  const did = uuidv4()
-  const x = {
-    "created_at": Timestamp.now().toMillis(),
-    "updated_at": Timestamp.now().toMillis(),
-    "shop": null,
-    "children": [],
-    "parent": null,
-    "title": params['title[en]'],
-    "description": params['description[en]'],
-    // "title[en]": "Pies",
-    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
- 
-    "id": did,
-    "uuid": did,
-    "keywords": params?.keywords,
-    "type": params?.type,
-    "input": 32767,
-    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
-    "active": true,
-    "status": "published",
-          "translation": {
-          "id": 18,
-          "locale": "en",
-          "title": "Commercial Ref"
-      },
-      "translations": [
-          {
-              "id": 18,
-              "locale": "en",
-              "title": "Commercial Ref1",
-              "description": params['description[en]']
-          }
-      ],
-      "locales": [
-          "en"
-      ],
-   
-  }
-
-    // const docRef = await addDoc(filesCollectionRef, {...x});
-    const docRef= await setDoc(doc(db, `Products`, did), x)
-    console.log('Files saved successfully with ID:', docRef);
-    return docRef;
-  } catch (error) {
-    console.error('Error saving files to Firestore:', error);
-    throw error;
-  }
-};
 
 export const updateReviews = async (
   uid,params
@@ -3088,3 +3041,42 @@ export const onMessageListener = () =>
       resolve(payload);
     });
   });
+
+// sers are ====> 
+// {firstname: 'divya', lastname: 'po', email: 'asz11@gnail.com', phone: 3245231, birthday: '2007-04-05', …}
+// birthday
+// : 
+// "2007-04-05"
+// email
+// : 
+// "asz11@gnail.com"
+// firstname
+// : 
+// "divya"
+// gender
+// : 
+// "female"
+// images
+// : 
+// ['https://foodyman.s3.amazonaws.com/public/images/deliveryman/settings/195-1674112040.jpg']
+// lastname
+// : 
+// "po"
+// password
+// : 
+// "abc123"
+// password_confirmation
+// : 
+// "abc123"
+// phone
+// : 
+// 3245231
+// role
+// : 
+// "deliveryman"
+// shop_id
+// : 
+// [505]
+// [[Prototype]]
+// : 
+// Object
