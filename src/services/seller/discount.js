@@ -3,8 +3,8 @@ import { getAllDiscounts, getAllDiscountsSnap, getAllDiscountsById, createDiscou
 import { update } from 'lodash';
 
 const discountService = {
-  // getAll: (params) =>
-  //   request.get('dashboard/seller/discounts/paginate', { params }),
+  getAll: (params) =>
+    request.get('dashboard/seller/discounts/paginate', { params }),
   // getById: (id) => request.get(`dashboard/seller/discounts/${id}`),
   // create: (data) => request.post('dashboard/seller/discounts', data),
   // update: (id, data) => request.put(`dashboard/seller/discounts/${id}`, data),
@@ -14,7 +14,7 @@ const discountService = {
     request.post(`dashboard/seller/discounts/${id}/active/status`),
 
   // new
-    getAll: (params) => getAllDiscounts('spark', { params }),
+    // getAll: (params) => getAllDiscounts('spark', { params }),
    
     getById: (id, params) => getAllDiscountsById('spark', id, { params }),
     create: (params) => createDiscountsDb('spark', { params }),
