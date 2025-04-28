@@ -5,7 +5,7 @@ export const  createBrandDb = async (orgId, payload)  =>  {
     // step 2a: check what values are required by going to network call of http://admin.hellostores.com     
     // step 2b: check what values are coming from parms through console.log
     try {
-      const filesCollectionRef = collection(db, `users`); // step 1: change to your collection name
+      const filesCollectionRef = collection(db, `T_users`); // step 1: change to your collection name
       const { params } = payload;
       console.log('my brand params in duplicate are ====>', params)
       const docRef = await addDoc(filesCollectionRef, {...params});
@@ -26,7 +26,7 @@ export const getAllusers = async (orgId, params) => {
   // const {params} = params
   let convertStatus =params?.params?.status ==='published' ? 1: 0
   const filesQuery = query(
-    collection(db, `users`), // change to your collection name
+    collection(db, `T_users`), // change to your collection name
     where('active', '==', convertStatus),
   );
   const querySnapshot = await getDocs(filesQuery);
@@ -50,7 +50,7 @@ let y  = {data:files,
           "active": false
       },
       {
-          "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/users\/paginate?page=1",
+          "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/T_users\/paginate?page=1",
           "label": "1",
           "active": true
       },
@@ -60,7 +60,7 @@ let y  = {data:files,
           "active": false
       }
   ],
-  "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/users\/paginate",
+  "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/T_users\/paginate",
   "per_page": "1000",
   "to": files.length,
   "total": files.length
@@ -72,11 +72,11 @@ export const getAllusersSnap = async (params, callback) => {
   console.log('snap are ====>', params)
     try {
     const filesQuery1 = query(
-      collection(db, `users`), //step 1:  change to your collection name
+      collection(db, `T_users`), //step 1:  change to your collection name
       where("status", "==", params?.params?.status || "published")
     );
     const itemsQuery1 = query(
-      collection(db, 'users'),
+      collection(db, 'T_users'),
 
     )
     // return await onSnapshot(itemsQuery1, callback)
@@ -99,13 +99,13 @@ export const getAllusersSnap = async (params, callback) => {
           links: [
             { url: null, label: "&laquo; Previous", active: false },
             {
-              url: "https://single-api.foodyman.org/api/v1/dashboard/admin/users/paginate?page=1",
+              url: "https://single-api.foodyman.org/api/v1/dashboard/admin/T_users/paginate?page=1",
               label: "1",
               active: true,
             },
             { url: null, label: "Next &raquo;", active: false },
           ],
-          path: "https://single-api.foodyman.org/api/v1/dashboard/admin/users/paginate",
+          path: "https://single-api.foodyman.org/api/v1/dashboard/admin/T_users/paginate",
           per_page: "10",
           to: files.length,
           total: files.length,
@@ -121,7 +121,7 @@ export const getAllusersSnap = async (params, callback) => {
     return unsubscribe;
   
   } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching T_users:', error);
   }
   return     
   // const {params} = params
@@ -129,7 +129,7 @@ export const getAllusersSnap = async (params, callback) => {
 };
 export const getAllusersById = async (orgId, uid, payload) => {
   try {
-    const docRef = doc(db, `users`, uid) // step 1: change to your collection name
+    const docRef = doc(db, `T_users`, uid) // step 1: change to your collection name
     const docSnap = await getDoc(docRef)
 
     console.log('Document data:', docSnap.data());
@@ -163,7 +163,7 @@ let x = params
 x['images[0]'] = ""
 
 
-    await updateDoc(doc(db, `users`, uid), { // step 1: change to your collection name
+    await updateDoc(doc(db, `T_users`, uid), { // step 1: change to your collection name
       title: x.title,
       active: x.active
     })
@@ -171,16 +171,16 @@ x['images[0]'] = ""
     //   variant: 'success',
     // })
   } catch (error) {
-    console.log('Failed updated users', error, {
+    console.log('Failed updated T_users', error, {
       ...params,
     })
   
   }
 }
 export const deleteBrand= async (params) => {
-  console.log('delte users is ', params)
+  console.log('delte T_users is ', params)
   params.map(async(item) => {
-   await deleteDoc(doc(db, 'users', item)) // step 1: change to your collection name
+   await deleteDoc(doc(db, 'T_users', item)) // step 1: change to your collection name
   })
 
 }
