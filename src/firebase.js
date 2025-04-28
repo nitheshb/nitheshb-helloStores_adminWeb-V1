@@ -2224,52 +2224,27 @@ export const getAllBannerById = async (orgId, uid, payload) => {
 export const  createBannerDb = async (orgId, payload)  =>  {
   try {
     const filesCollectionRef = collection(db, `p_banner`);
-    const { params } = payload;
-    params.status = 'published';
 
+    const myId = uuidv4()
+    const { params } = payload;
+    let input ={
+
+          "id": myId,
+          "url": params.url,
+          "img": params.images[0],
+          "active": params.active,
+          "clickable": params.clickable,
+          "type": "banner",
+          "created_at": Timestamp.now().toMillis(),
+          "updated_at": Timestamp.now().toMillis(),
+    
+  }
     console.log('banner are ====>', params)
     
-  const did = uuidv4()
-  const x = {
-    "created_at": Timestamp.now().toMillis(),
-    "updated_at": Timestamp.now().toMillis(),
-    "shop": null,
-    "children": [],
-    "parent": null,
-    "title": params['title[en]'],
-    "description": params['description[en]'],
-    // "title[en]": "Pies",
-    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
+    
  
-    "id": did,
-    "uuid": did,
-    "keywords": params?.keywords,
-    "type": params?.type,
-    "input": 32767,
-    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
-    "active": true,
-    "status": "published",
-          "translation": {
-          "id": 18,
-          "locale": "en",
-          "title": "Commercial Ref"
-      },
-      "translations": [
-          {
-              "id": 18,
-              "locale": "en",
-              "title": "Commercial Ref1",
-              "description": params['description[en]']
-          }
-      ],
-      "locales": [
-          "en"
-      ],
-   
-  }
-
     // const docRef = await addDoc(filesCollectionRef, {...x});
-    const docRef= await setDoc(doc(db, `p_category`, did), x)
+    const docRef= await setDoc(doc(db, `p_banner`, myId), input)
     console.log('Files saved successfully with ID:', docRef);
     return docRef;
   } catch (error) {
@@ -2622,12 +2597,66 @@ export const getAllOrderStatusById = async (orgId, uid, payload) => {
   }
 };
 
-// Notification
-export const getAllNotifications = async (orgId, params) => {
+
+
+
+// Bonus
+// export const getAllBonus = async (orgId, params) => {
+//   console.log('params are ====>', params)
+//   // const {params} = params
+//   const filesQuery = query(
+//     collection(db, `p_bonus`),
+//     where('status', '==', params?.params?.status || 'published'),
+//   );
+//   const querySnapshot = await getDocs(filesQuery);
+//   const files = querySnapshot.docs.map((doc) => {
+//     let x = doc.data();
+//     x.id = doc.id; 
+//     x.uuid = doc.id;
+//     return x;
+//   });
+  
+  
+// let y  = {data:files, 
+//    "meta": {
+//   "current_page": 1,
+//   "from": 1,
+//   "last_page": 1,
+//   "links": [
+//       {
+//           "url": null,
+//           "label": "&laquo; Previous",
+//           "active": false
+//       },
+//       {
+//           "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/brands\/paginate?page=1",
+//           "label": "1",
+//           "active": true
+//       },
+//       {
+//           "url": null,
+//           "label": "Next &raquo;",
+//           "active": false
+//       }
+//   ],
+//   "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/brands\/paginate",
+//   "per_page": "1000",
+//   "to": files.length,
+//   "total": files.length
+// }}
+//   return y;
+// };
+
+
+
+
+
+//Product Bonus
+export const getAllProductBonuses = async (orgId, params) => {
   console.log('params are ====>', params)
   // const {params} = params
   const filesQuery = query(
-    collection(db, `p_notifications`),
+    collection(db, `p_refund`),
     where('status', '==', params?.params?.status || 'published'),
   );
   const querySnapshot = await getDocs(filesQuery);
@@ -2669,12 +2698,180 @@ let y  = {data:files,
   return y;
 };
 
-// Bonus
-export const getAllBonus = async (orgId, params) => {
+export const getAllProductBonusesById = async (orgId, uid, payload) => {
+  try {
+    const docRef = doc(db, `p_refund`, uid)
+    const docSnap = await getDoc(docRef)
+
+    console.log('Document data:', docSnap.data());
+
+    if (docSnap.exists() && docSnap.data()) {
+      console.log('Brokerage details found:', docSnap.data());
+      let x =docSnap.data();
+      x.id = docSnap.id;
+      x.uuid = doc.id;
+      x.img = x['images[0]'];
+
+      return docSnap.data();
+    } else {
+      console.log('No brokerage details found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching brokerage details:', error);
+    throw error;
+  }
+};
+export const  createProductBonusesDb = async (orgId, payload)  =>  {
+  try {
+    const filesCollectionRef = collection(db, `p_product_bonuses`);
+    const { params } = payload;
+    params.status = 'published';
+
+    console.log('refund are ====>', params)
+    
+  const myId = uuidv4()
+  // const x = {
+  //   "created_at": Timestamp.now().toMillis(),
+  //   "updated_at": Timestamp.now().toMillis(),
+  //   "shop": null,
+  //   "children": [],
+  //   "parent": null,
+  //   "title": params['title[en]'],
+  //   "description": params['description[en]'],
+  //   // "title[en]": "Pies",
+  //   // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
+ 
+  //   "id": did,
+  //   "uuid": did,
+  //   "keywords": params?.keywords,
+  //   "type": params?.type,
+  //   "input": 32767,
+  //   "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
+  //   "active": true,
+  //   "status": "published",
+  //         "translation": {
+  //         "id": 18,
+  //         "locale": "en",
+  //         "title": "Commercial Ref"
+  //     },
+  //     "translations": [
+  //         {
+  //             "id": 18,
+  //             "locale": "en",
+  //             "title": "Commercial Ref1",
+  //             "description": params['description[en]']
+  //         }
+  //     ],
+  //     "locales": [
+  //         "en"
+  //     ],
+   
+  // }
+
+  let input ={
+    "id": myId,
+    "bonusable_type": "App\\Models\\Shop",
+    "bonusable_id": params.bonusable_id,
+    "bonus_quantity": params.bonus_quantity,
+    "bonus_stock_id": params.bonus_stock_id,
+    "value": params.value,
+    "type": "sum",
+    "status": true,
+    "expired_at": params.expired_at,
+    // "bonusStock": {
+    //     "id": params.bonus_stock_id,
+    //     "countable_id": 1,
+    //     "price": 120,
+    //     "quantity": 100,
+    //     "total_price": 120,
+    //     "addon": false,
+    //     "product": {
+    //         "id": params.bonus_stock_id,
+    //         "uuid": "e081bba9-3bc7-4486-81c2-ab09705dbadc",
+    //         "active": false,
+    //         "addon": false,
+    //         "visibility": false,
+    //         "vegetarian": false,
+    //         "stocks_count": 0,
+    //         "rating_percent": null,
+    //         "discounts": [],
+    //         "translation": {
+    //             "id": 1,
+    //             "locale": "en",
+    //             "title": "Apple 1kg",
+    //             "description": "Fresh apple"
+    //         },
+    //         "reviews": []
+    //     }
+    // },
+    // "bonusable": {
+    //     "id": params.bonusable_id,
+    //     "uuid": "8d684b24-2bc4-4718-9255-f55cef966f39",
+    //     "tax": null,
+    //     "open": false,
+    //     "visibility": null,
+    //     "invite_link": "/shop/invitation/8d684b24-2bc4-4718-9255-f55cef966f39/link",
+    //     "products_count": 0,
+    //     "translation": {
+    //         "id": 6,
+    //         "locale": "en",
+    //         "title": "Hellostores"
+    //     },
+    //     "locales": []
+    // }
+}
+
+    // const docRef = await addDoc(filesCollectionRef, {...x});
+    const docRef= await setDoc(doc(db, `p_product_bonuses`, myId), input)
+    console.log('Files saved successfully with ID:', docRef);
+    return docRef;
+  } catch (error) {
+    console.error('Error saving files to Firestore:', error);
+    throw error;
+  }
+};
+
+export const updateProductBonuses = async (
+  uid,params
+
+) => {
+  try {
+  
+console.log('params are ====>', uid,params)
+let x = params
+x['images[0]'] = ""
+
+
+    await updateDoc(doc(db, `p_refund`, uid), {
+      title: x.title,
+      active: x.active
+    })
+    // enqueueSnackbar('Cost Sheet Updated for Customer', {
+    //   variant: 'success',
+    // })
+  } catch (error) {
+    console.log('Filed updated Cost sheet', error, {
+      ...data,
+    })
+  
+  }
+}
+export const deleteProductBonuses= async (params) => {
+  console.log('delete user is ', params)
+  params.map(async(item) => {
+   await deleteDoc(doc(db, 'p_refund', item))
+  })
+
+}
+
+
+// Branch Bonus
+export const getAllBranchBonuses = async (orgId, params) => {
   console.log('params are ====>', params)
   // const {params} = params
   const filesQuery = query(
-    collection(db, `p_bonus`),
+    collection(db, `p_refund`),
     where('status', '==', params?.params?.status || 'published'),
   );
   const querySnapshot = await getDocs(filesQuery);
@@ -2715,6 +2912,177 @@ let y  = {data:files,
 }}
   return y;
 };
+
+
+export const getAllBranchBonusesById = async (orgId, uid, payload) => {
+  try {
+    const docRef = doc(db, `p_refund`, uid)
+    const docSnap = await getDoc(docRef)
+
+    console.log('Document data:', docSnap.data());
+
+    if (docSnap.exists() && docSnap.data()) {
+      console.log('Brokerage details found:', docSnap.data());
+      let x =docSnap.data();
+      x.id = docSnap.id;
+      x.uuid = doc.id;
+      x.img = x['images[0]'];
+
+      return docSnap.data();
+    } else {
+      console.log('No brokerage details found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching brokerage details:', error);
+    throw error;
+  }
+};
+export const  createBranchBonusesDb = async (orgId, payload)  =>  {
+  debugger;
+  try {
+    const filesCollectionRef = collection(db, `p_branch_bonuses`);
+    const { params } = payload;
+    params.status = 'published';
+
+    console.log('branch_bonuses are ====>', params)
+    
+  const myId = uuidv4()
+  // const x = {
+  //   "created_at": Timestamp.now().toMillis(),
+  //   "updated_at": Timestamp.now().toMillis(),
+  //   "shop": null,
+  //   "children": [],
+  //   "parent": null,
+  //   "title": params['title[en]'],
+  //   "description": params['description[en]'],
+  //   // "title[en]": "Pies",
+  //   // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
+ 
+  //   "id": did,
+  //   "uuid": did,
+  //   "keywords": params?.keywords,
+  //   "type": params?.type,
+  //   "input": 32767,
+  //   "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
+  //   "active": true,
+  //   "status": "published",
+  //         "translation": {
+  //         "id": 18,
+  //         "locale": "en",
+  //         "title": "Commercial Ref"
+  //     },
+  //     "translations": [
+  //         {
+  //             "id": 18,
+  //             "locale": "en",
+  //             "title": "Commercial Ref1",
+  //             "description": params['description[en]']
+  //         }
+  //     ],
+  //     "locales": [
+  //         "en"
+  //     ],
+   
+  // }
+
+  let input ={
+    "id": myId,
+    "bonusable_type": "App\\Models\\Shop",
+    "bonusable_id": params.bonusable_id,
+    "bonus_quantity": params.bonus_quantity,
+    "bonus_stock_id": params.bonus_stock_id,
+    "value": params.value,
+    "type": "sum",
+    "status": true,
+    "expired_at": params.expired_at,
+    // "bonusStock": {
+    //     "id": params.bonus_stock_id,
+    //     "countable_id": 1,
+    //     "price": 120,
+    //     "quantity": 100,
+    //     "total_price": 120,
+    //     "addon": false,
+    //     "product": {
+    //         "id": params.bonus_stock_id,
+    //         "uuid": "e081bba9-3bc7-4486-81c2-ab09705dbadc",
+    //         "active": false,
+    //         "addon": false,
+    //         "visibility": false,
+    //         "vegetarian": false,
+    //         "stocks_count": 0,
+    //         "rating_percent": null,
+    //         "discounts": [],
+    //         "translation": {
+    //             "id": 1,
+    //             "locale": "en",
+    //             "title": "Apple 1kg",
+    //             "description": "Fresh apple"
+    //         },
+    //         "reviews": []
+    //     }
+    // },
+    // "bonusable": {
+    //     "id": params.bonusable_id,
+    //     "uuid": "8d684b24-2bc4-4718-9255-f55cef966f39",
+    //     "tax": null,
+    //     "open": false,
+    //     "visibility": null,
+    //     "invite_link": "/shop/invitation/8d684b24-2bc4-4718-9255-f55cef966f39/link",
+    //     "products_count": 0,
+    //     "translation": {
+    //         "id": 6,
+    //         "locale": "en",
+    //         "title": "Hellostores"
+    //     },
+    //     "locales": []
+    // }
+}
+
+    // const docRef = await addDoc(filesCollectionRef, {...x});
+    const docRef= await setDoc(doc(db, `p_branch_bonuses`, myId), input)
+    console.log('Files saved successfully with ID:', docRef);
+    return docRef;
+  } catch (error) {
+    console.error('Error saving files to Firestore:', error);
+    throw error;
+  }
+};
+
+export const updateBranchBonuses = async (
+  uid,params
+
+) => {
+  try {
+  
+console.log('params are ====>', uid,params)
+let x = params
+x['images[0]'] = ""
+
+
+    await updateDoc(doc(db, `p_refund`, uid), {
+      title: x.title,
+      active: x.active
+    })
+    // enqueueSnackbar('Cost Sheet Updated for Customer', {
+    //   variant: 'success',
+    // })
+  } catch (error) {
+    console.log('Filed updated Cost sheet', error, {
+      ...data,
+    })
+  
+  }
+}
+export const deleteBranchBonuses= async (params) => {
+  console.log('delete user is ', params)
+  params.map(async(item) => {
+   await deleteDoc(doc(db, 'p_refund', item))
+  })
+
+}
+
+
 
 // coupon
 export const getAllCoupon = async (orgId, params) => {
@@ -2792,51 +3160,58 @@ export const  createCouponDb = async (orgId, payload)  =>  {
   try {
     const filesCollectionRef = collection(db, `p_coupon`);
     const { params } = payload;
-    params.status = 'published';
-
+    const myId = uuidv4()
+    // coupon are ====> 
+    //   {name: 'SUMANTH', type: 'fix', expired_at: '2025-04-19', qty: 6, price: 500, …}
+    //   expired_at
+    //   : 
+    //   "2025-04-19"
+    //   name
+    //   : 
+    //   "SUMANTH"
+    //   price
+    //   : 
+    //   500
+    //   qty
+    //   : 
+    //   6
+    //   shop_id
+    //   : 
+    //   501
+    //   status
+    //   : 
+    //   "published"
+    //   title[en]
+    //   : 
+    //   "REFER1"
+    //   type
+    //   : 
+    //   "fix"
+    //   [[Prototype]]
+    //   : 
+    //   Object
+    let input = { 
+      "id": myId,
+      "name": params.name,
+      "type": params.type,
+      "qty": params.qty,
+      "price":  params.price,
+      "expired_at": Timestamp.now().toMillis(),
+      "img": null,
+      "created_at": Timestamp.now().toMillis(),
+      "updated_at": Timestamp.now().toMillis(),
+      "translation": {
+          "id": 1,
+          "locale": "en",
+          "title": "REFER1"
+      }
+  }
     console.log('coupon are ====>', params)
     
-  const did = uuidv4()
-  const x = {
-    "created_at": Timestamp.now().toMillis(),
-    "updated_at": Timestamp.now().toMillis(),
-    "shop": null,
-    "children": [],
-    "parent": null,
-    "title": params['title[en]'],
-    "description": params['description[en]'],
-    // "title[en]": "Pies",
-    // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
- 
-    "id": did,
-    "uuid": did,
-    "keywords": params?.keywords,
-    "type": params?.type,
-    "input": 32767,
-    "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
-    "active": true,
-    "status": "published",
-          "translation": {
-          "id": 18,
-          "locale": "en",
-          "title": "Commercial Ref"
-      },
-      "translations": [
-          {
-              "id": 18,
-              "locale": "en",
-              "title": "Commercial Ref1",
-              "description": params['description[en]']
-          }
-      ],
-      "locales": [
-          "en"
-      ],
-   
-  }
+  
 
     // const docRef = await addDoc(filesCollectionRef, {...x});
-    const docRef= await setDoc(doc(db, `p_category`, did), x)
+    const docRef= await setDoc(doc(db, `coupon`, myId), input)
     console.log('Files saved successfully with ID:', docRef);
     return docRef;
   } catch (error) {
@@ -2874,6 +3249,197 @@ export const deleteCoupon= async (params) => {
   console.log('delte user is ', params)
   params.map(async(item) => {
    await deleteDoc(doc(db, 'p_coupon', item))
+  })
+
+}
+
+
+//Blog Notifications - Promotion Management (Notifications)
+
+export const getAllBlogsNotifications = async (orgId, params) => {
+  console.log('params are ====>', params)
+  // const {params} = params
+  const filesQuery = query(
+    collection(db, `BlogsNotifications`),
+    // where('status', '==', params?.params?.status || 'published'),
+  );
+  const querySnapshot = await getDocs(filesQuery);
+  const files = querySnapshot.docs.map((doc) => {
+    let x = doc.data();
+    x.id = doc.id; 
+    x.uuid = doc.id;
+    return x;
+  });
+  
+  
+let y  = {data:files, 
+  "links": {
+    "first": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/reviews\/paginate?page=1",
+    "last": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/reviews\/paginate?page=1",
+    "prev": null,
+    "next": null
+},
+"meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "links": [
+        {
+            "url": null,
+            "label": "&laquo; Previous",
+            "active": false
+        },
+        {
+            "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/reviews\/paginate?page=1",
+            "label": "1",
+            "active": true
+        },
+        {
+            "url": null,
+            "label": "Next &raquo;",
+            "active": false
+        }
+    ],
+    "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/reviews\/paginate",
+    "per_page": "10",
+    "to": 7,
+    "total": 7
+}}
+  return y;
+};
+
+
+export const getAllBlogsNotificationsById = async (orgId, uid, payload) => {
+  try {
+    const docRef = doc(db, `p_blogs_notifications`, uid)
+    const docSnap = await getDoc(docRef)
+
+    console.log('Document data:', docSnap.data());
+
+    if (docSnap.exists() && docSnap.data()) {
+      console.log('Brokerage details found:', docSnap.data());
+      let x =docSnap.data();
+      x.id = docSnap.id;
+      x.uuid = doc.id;
+      x.img = x['images[0]'];
+
+      return docSnap.data();
+    } else {
+      console.log('No brokerage details found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching brokerage details:', error);
+    throw error;
+  }
+};
+export const  createBlogsNotificationsDb = async (orgId, payload)  =>  {
+  try {
+    const filesCollectionRef = collection(db, `p_blogs_notifications`);
+    const { params } = payload;
+    params.status = 'published';
+
+    console.log('blogsnotifications are ====>', params)
+
+    
+  const myId = uuidv4()
+  // const x = {
+  //   "created_at": Timestamp.now().toMillis(),
+  //   "updated_at": Timestamp.now().toMillis(),
+  //   "shop": null,
+  //   "children": [],
+  //   "parent": null,
+  //   "title": params['title[en]'],
+  //   "description": params['description[en]'],
+  //   // "title[en]": "Pies",
+  //   // "description[en]": "Dish made by lining a shallow container with pastry and filling the container with a sweet or savoury mixture",
+ 
+  //   "id": did,
+  //   "uuid": did,
+  //   "keywords": params?.keywords,
+  //   "type": params?.type,
+  //   "input": 32767,
+  //   "img": "https://cdnimg.webstaurantstore.com/uploads/design/2023/5/Homepage-Categories/category-refrigeration.png",
+  //   "active": true,
+  //   "status": "published",
+  //         "translation": {
+  //         "id": 18,
+  //         "locale": "en",
+  //         "title": "Commercial Ref"
+  //     },
+  //     "translations": [
+  //         {
+  //             "id": 18,
+  //             "locale": "en",
+  //             "title": "Commercial Ref1",
+  //             "description": params['description[en]']
+  //         }
+  //     ],
+  //     "locales": [
+  //         "en"
+  //     ],
+   
+  // }
+
+  let input = {
+    "id": myId,
+    // "uuid": uuid(),
+    "user_id": 103,
+    "type": "blog",
+    "active": true,
+    "created_at": Timestamp.now().toMillis(),
+    "updated_at": Timestamp.now().toMillis(),
+    "translation": {
+        "id": myId,
+        "locale": "en",
+        "title": params.title.tr,
+        "short_desc": params.short_desc.tr,
+    },
+    "locales": [
+        "en"
+    ]
+}
+console.log('Files', input);
+    // const docRef = await addDoc(filesCollectionRef, {...x});
+    const docRef= await setDoc(doc(db, `p_blogs_notifications`, myId), input)
+    console.log('Files saved successfully with ID:', docRef);
+    
+    return docRef;
+  } catch (error) {
+    console.error('Error saving files to Firestore:', error);
+    throw error;
+  }
+};
+
+export const updateBlogsNotifications = async (
+  uid,params
+
+) => {
+  try {
+  
+console.log('params are ====>', uid,params)
+let x = params
+x['images[0]'] = ""
+
+
+    await updateDoc(doc(db, `p_blogs_notifications`, uid), {
+      title: x.title,
+      active: x.active
+    })
+    // enqueueSnackbar('Cost Sheet Updated for Customer', {
+    //   variant: 'success',
+    // })
+  } catch (error) {
+    console.log('Filed updated Cost sheet', error, {
+      ...data,
+    })
+  
+  }
+}
+export const deleteBlogsNotifications= async (params) => {
+  console.log('delte user is ', params)
+  params.map(async(item) => {
+   await deleteDoc(doc(db, 'p_blogs_notifications', item))
   })
 
 }
