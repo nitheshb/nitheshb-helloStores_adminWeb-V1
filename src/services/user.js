@@ -3,7 +3,7 @@ import { getAllUsers, getAllusersSnap, getAllUsersById, createUsersDb, updateUse
 import { update } from 'lodash';
 
 const userService = {
-  // getAll: (params) => request.get('dashboard/admin/users/paginate', { params }),
+  getAll: (params) => request.get('dashboard/admin/users/paginate', { params }),
   // getById: (id, params) =>
   //   request.get(`dashboard/admin/users/${id}`, { params }),
   // create: (data) => request.post('dashboard/admin/users', data),
@@ -34,7 +34,7 @@ const userService = {
     request.get(`dashboard/admin/delivery-man-delivery-zones/${id}`),
 
   // new
-  getAll: (params) => getAllUsers('spark', { params }),
+  // getAll: (params) => getAllUsers('spark', { params }),
    
       getById: (id, params) => getAllUsersById('spark', id, { params }),
       create: (params) => createUsersDb('spark', { params }),
