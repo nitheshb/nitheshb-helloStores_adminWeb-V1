@@ -10,12 +10,12 @@ const bannerService = {
   // create: (data) => request.post('dashboard/admin/banners', data, {}),
   // update: (id, data) => request.put(`dashboard/admin/banners/${id}`, data, {}),
   // delete: (params) =>
-  //   request.delete(`dashboard/admin/banners/delete`, { params }),
+  //   request.delete(`dashboard/++++++++++admin/banners/delete`, { params }),
   setActive: (id) => request.post(`dashboard/admin/banners/active/${id}`),
   dropAll: () => request.get(`dashboard/admin/banners/drop/all`),
   restoreAll: () => request.get(`dashboard/admin/banners/restore/all`),
   
-  // new
+  // new/
     getAll: (params) => getAllBanner('spark', { params }),
     // getAllSnap: (params, callback) => getAllBannerSnap({ params }, callback),
     getById: (id, params) => getAllBannerById('spark', id, { params }),
