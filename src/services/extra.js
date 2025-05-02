@@ -1,11 +1,11 @@
 import request from './request';
-import { getAllValues, getAllValuesSnap, getAllValuesById, createValuesDb, updateValues, deleteValues } from 'firebase.js';
-import { getAllGroups, getAllGroupsSnap, getAllGroupsById, createGroupsDb, updateGroups, deleteGroups } from 'firebase.js';
+import { getAllValues, getAllValuesSnap, getAllValuesById, createValuesDb, updateValues, deleteValues } from './dbQueries/q_extra_values';
+import { getAllGroups, getAllGroupsSnap, getAllGroupsById, createGroupsDb, updateGroups, deleteGroups } from './dbQueries/q_extra_groups';
 import { update } from 'lodash';
 
 const extraService = {
-  getAllGroups: (params) =>
-    request.get('dashboard/admin/extra/groups', { params }),
+  // getAllGroups: (params) =>
+  //   request.get('dashboard/admin/extra/groups', { params }),
   // getGroupById: (id, params) =>
   //   request.get(`dashboard/admin/extra/groups/${id}`, { params }),
   getGroupTypes: (params) =>
@@ -18,8 +18,8 @@ const extraService = {
   dropAllGroup: () => request.get(`dashboard/admin/extra/group/drop/all`),
   restoreAllGroup: () => request.get(`dashboard/admin/extra/group/restore/all`),
 
-  getAllValues: (params) =>
-    request.get('dashboard/admin/extra/values', { params }),
+  // getAllValues: (params) =>
+  //   request.get('dashboard/admin/extra/values', { params }),
   // getValueById: (id, params) =>
   //   request.get(`dashboard/admin/extra/values/${id}`, { params }),
   // createValue: (params) =>
@@ -33,14 +33,14 @@ const extraService = {
     request.get(`dashboard/admin/extra/values/restore/all`),
   
   // new
-  //  getAll: (params) => getAllValues('spark', { params }),
+   getAllValues: (params) => getAllValues('spark', { params }),
    
   getValueById: (id, params) => getAllValuesById('spark', id, { params }),
     createValue: (params) => createValuesDb('spark', { params }),
     updateValue: (id, params) => updateValues( id,params ),
     deleteValue: (params) => deleteValues(params),
 
-    // getAll: (params) => getAllGroups('spark', { params }),
+    getAllGroups: (params) => getAllGroups('spark', { params }),
    
     getGroupById: (id, params) => getAllGroupsById('spark', id, { params }),
     createGroup: (params) => createGroupsDb('spark', { params }),
