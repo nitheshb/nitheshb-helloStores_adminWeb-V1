@@ -228,7 +228,7 @@ const User = () => {
       ),
     };
 
-    deliveryService
+    userService
       .delete(params)
       .then(() => {
         toast.success(t('successfully.deleted'));
