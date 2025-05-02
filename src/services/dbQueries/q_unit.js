@@ -13,26 +13,26 @@ export const createUnitsDb = async (orgId, payload) => {
     const translations = [];
     const locales = [];
     const titleData = {};
-    
+
     // Process all title fields with pattern title[locale]
     Object.keys(params).forEach(key => {
         const match = key.match(/^title\[(.*)\]$/);
         if (match && match[1] && params[key] !== undefined && params[key].trim() !== '') {
             const locale = match[1];
             titleData[locale] = params[key];
-            
+
             translations.push({
                 locale: locale,
                 title: params[key]
             });
-            
+
             // Add to locales array
             if (!locales.includes(locale)) {
                 locales.push(locale);
             }
         }
     });
-    
+
     // Default to 'en' if no locales found
     if (locales.length === 0) {
         locales.push('en');
@@ -72,12 +72,12 @@ export const createUnitsDb = async (orgId, payload) => {
 
 export const getAllUnits = async (orgId, params) => {
     console.log('params are ====>', params)
-  
+
     const filesQuery = query(
         collection(db, `T_unit`), // change to your collection name
     );
     const querySnapshot = await getDocs(filesQuery);
-   
+
     const files = querySnapshot.docs.map((doc) => {
         let x = doc.data();
         // Set id and uuid from the document ID
@@ -123,15 +123,15 @@ export const getAllUnitsById = async (orgId, uid, payload) => {
     try {
         const docRef = doc(db, `T_unit`, uid);
         const docSnap = await getDoc(docRef);
-  
+
         if (docSnap.exists() && docSnap.data()) {
             console.log('Unit details found:', docSnap.data());
             let unitData = docSnap.data();
-            
+
             // Set id and uuid
             unitData.id = docSnap.id;
             unitData.uuid = docSnap.id;
-            
+
             // Format data to match what the form expects
             // If translations doesn't exist or is empty, create it from title data
             if (!unitData.translations || unitData.translations.length === 0) {
@@ -150,10 +150,10 @@ export const getAllUnitsById = async (orgId, uid, payload) => {
                     }));
                 }
             }
-            
+
             // Ensure 'active' is a boolean value for the Switch component
             unitData.active = unitData.active === 1 || unitData.active === true;
-            
+
             return { data: unitData };
         } else {
             console.log('No unit details found.');
@@ -169,30 +169,30 @@ export const getAllUnitsById = async (orgId, uid, payload) => {
 export const updateUnits = async (uid, params) => {
     try {
         console.log('params being passed to update function:', uid, params);
-        
+
         // Extract only defined title values from params
         const titleData = {};
         const translations = [];
         const locales = [];
-        
+
         Object.keys(params).forEach(key => {
             const match = key.match(/^title\[(.*)\]$/);
             if (match && match[1] && params[key] !== undefined) {
                 const locale = match[1];
                 titleData[locale] = params[key];
-                
+
                 translations.push({
                     locale: locale,
                     title: params[key]
                 });
-                
+
                 // Add to locales array
                 if (!locales.includes(locale)) {
                     locales.push(locale);
                 }
             }
         });
-        
+
         console.log('Title data extracted:', titleData);
         console.log('Translations extracted:', translations);
         console.log('Locales extracted:', locales);
@@ -209,12 +209,12 @@ export const updateUnits = async (uid, params) => {
             updated_at: Timestamp.now().toMillis(),
             locales: locales.length > 0 ? locales : ['en'] // Default to 'en' if no locales
         };
-        
+
         // Only include title and translations if we have valid data
         if (Object.keys(titleData).length > 0) {
             updateData.title = titleData;
             updateData.translations = translations;
-            
+
             // Add a single translation object for backward compatibility
             if (translations.length > 0) {
                 updateData.translation = {
@@ -223,7 +223,7 @@ export const updateUnits = async (uid, params) => {
                 };
             }
         }
-        
+
         console.log('Update data being saved to Firestore:', updateData);
 
         await updateDoc(doc(db, `T_unit`, uid), updateData);
@@ -256,32 +256,30 @@ export const deleteUnits = async (params) => {
     }
 };
 
-
-
 export const setActiveUnits = async (id) => {
     try {
         // Extract the actual ID from the path if needed
         const unitId = id.includes('/') ? id.split('/').pop() : id;
-        
+
         // Get the current document data
         const docRef = doc(db, 'T_unit', unitId);
         const docSnap = await getDoc(docRef);
-        
+
         if (!docSnap.exists()) {
             throw new Error(`Unit with ID ${unitId} not found`);
         }
-        
+
         // Get current data and toggle the active status
         const unitData = docSnap.data();
         const currentActive = unitData.active === 1 || unitData.active === true;
         const newActive = !currentActive;
-        
+
         // Update the document with the toggled active status
         await updateDoc(docRef, {
             active: newActive ? 1 : 0,
             updated_at: Timestamp.now().toMillis()
         });
-        
+
         // Prepare and return the response in the expected format
         const response = {
             timestamp: new Date().toISOString(),
@@ -290,12 +288,12 @@ export const setActiveUnits = async (id) => {
                 id: parseInt(unitId) || unitId, // Try to parse as integer if possible
                 active: newActive,
                 position: unitData.position || "before",
-                created_at: new Date(unitData.created_at).toISOString().replace('T', ' ').replace(/\.\d+Z$/, 'Z'),
-                updated_at: new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, 'Z'),
+                "created_at": Timestamp.now().toMillis(),
+                "updated_at": Timestamp.now().toMillis(),
                 locales: unitData.locales || ["en"]
             }
         };
-        
+
         console.log('Unit active status toggled successfully:', response);
         return response;
     } catch (error) {

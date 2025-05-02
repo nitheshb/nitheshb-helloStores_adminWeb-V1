@@ -1,4 +1,4 @@
-import { getAllCategories, getAllCategoriesById ,createCategoriesDb,  updateCategory, deleteCategory} from 'firebase.js';
+import { getAllCategories, getAllCategoriesById ,createCategoriesDb,  updateCategory, deleteCategory} from './dbQueries/q_categories';
 
 import request from './request';
 
