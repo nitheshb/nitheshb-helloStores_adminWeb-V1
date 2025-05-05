@@ -14,7 +14,6 @@ export const createGroupsDb = async (orgId, payload) => {
   const locales = [];
   const titleData = {};
 
-  // Process all title fields with pattern title[locale]
   if (params.title) {
     if (typeof params.title === 'string') {
       const selectedLanguage = params.selectedLanguage || 'en'; // Default to 'en' if no language is selected
