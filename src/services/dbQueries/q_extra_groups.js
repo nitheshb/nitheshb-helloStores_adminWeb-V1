@@ -136,41 +136,41 @@ export const getAllGroupsById = async (orgId, uid, payload) => {
 
       if (docSnap.exists() && docSnap.data()) {
           console.log('Unit details found:', docSnap.data());
-          let unitData = docSnap.data();
+          let groupData = docSnap.data();
 
           // Set id and uuid
-          unitData.id = docSnap.id;
-          unitData.uuid = docSnap.id;
+          groupData.id = docSnap.id;
+          groupData.uuid = docSnap.id;
 
           // Format data to match what the form expects
           // If translations doesn't exist or is empty, create it from title data
-          if (!unitData.translations || unitData.translations.length === 0) {
+          if (!groupData.translations || groupData.translations.length === 0) {
               // If there's a translation object with locale and title
-              if (unitData.translation && unitData.translation.locale && unitData.translation.title) {
-                  unitData.translations = [{
-                      locale: unitData.translation.locale,
-                      title: unitData.translation.title
+              if (groupData.translation && groupData.translation.locale && groupData.translation.title) {
+                  groupData.translations = [{
+                      locale: groupData.translation.locale,
+                      title: groupData.translation.title
                   }];
               }
               // If there's a title object with multiple locales
-              else if (typeof unitData.title === 'object') {
-                  unitData.translations = Object.keys(unitData.title).map(locale => ({
+              else if (typeof groupData.title === 'object') {
+                  groupData.translations = Object.keys(groupData.title).map(locale => ({
                       locale,
-                      title: unitData.title[locale]
+                      title: groupData.title[locale]
                   }));
               }
           }
 
           // Ensure 'active' is a boolean value for the Switch component
-          unitData.active = unitData.active === 1 || unitData.active === true;
+          groupData.active = groupData.active === 1 || groupData.active === true;
 
-          return { data: unitData };
+          return { data: groupData };
       } else {
-          console.log('No unit details found.');
+          console.log('No group details found.');
           return { data: null };
       }
   } catch (error) {
-      console.error('Error fetching unit details:', error);
+      console.error('Error fetching group details:', error);
       throw error;
   }
 };
