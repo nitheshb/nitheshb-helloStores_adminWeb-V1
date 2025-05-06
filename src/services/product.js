@@ -1,10 +1,10 @@
 import request from './request';
-import{getAllProducts, getAllproductsSnap, getAllProductsById, createProductsDb, updateProducts, deleteProducts} from 'firebase.js';
+import{getAllProducts, ExtrasGroupsDb, getAllproductsSnap, getAllProductsById, createProductsDb, updateProducts, deleteProducts} from './dbQueries/q_product';
 import { update } from 'lodash';
               
 const productService = {
-  getAll: (params) =>
-    request.get('dashboard/admin/products/paginate', { params }),
+  //  getAll: (params) =>
+  //   request.get('dashboard/admin/products/paginate', { params }),
   // getById: (id, params) =>
   //   request.get(`dashboard/admin/products/${id}`, { params }),
   export: (params) =>
@@ -17,8 +17,8 @@ const productService = {
   //   request.delete(`dashboard/admin/products/delete`, { params }),
   dropAll: () => request.get(`dashboard/admin/products/drop/all`),
   restoreAll: () => request.get(`dashboard/admin/products/restore/all`),
-  extras: (uuid, data) =>
-    request.post(`dashboard/admin/products/${uuid}/extras`, data),
+  // extras: (uuid, data) =>
+  //   request.post(`dashboard/admin/products/${uuid}/extras`, data),
   stocks: (uuid, data) =>
     request.post(`dashboard/admin/products/${uuid}/stocks`, data),
   properties: (uuid, data) =>
@@ -36,12 +36,16 @@ const productService = {
   sync: (data) =>
     request.post(`dashboard/admin/products/parent/sync`, data, {}),
 
-  //  getAll: (params) => getAllproducts('spark', { params }),
- 
+
+
+    getAll: (params) => getAllProducts('spark', { params }),
     getById: (id, params) => getAllProductsById('spark', id, { params }),
-     create: (params) => createProductsDb('spark', { params }),
+    create: (params) => createProductsDb('spark', { params }),
     update: (id, params) => updateProducts( id,params ),
     delete: (params) => deleteProducts(params),
+    extras: (id, params) => ExtrasGroupsDb(`dashboard/admin/products/${id}/extras`, params)
+    
+    
 };
 
 export default productService;

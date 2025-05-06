@@ -128,21 +128,83 @@ let y  = {data:files,
   return y;
 };
 
+// export const getAllGroupsById = async (orgId, uid, payload) => {
+//   try {
+//       const docRef = doc(db, `T_extra_groups`, uid);
+//       const docSnap = await getDoc(docRef);
+
+//       if (docSnap.exists() && docSnap.data()) {
+//           console.log('Unit details found:', docSnap.data());
+//           let groupData = docSnap.data();
+
+//           // Set id and uuid
+//           groupData.id = docSnap.id;
+//           groupData.uuid = docSnap.id;
+
+//           // Format data to match what the form expects
+//           // If translations doesn't exist or is empty, create it from title data
+//           if (!groupData.translations || groupData.translations.length === 0) {
+//               // If there's a translation object with locale and title
+//               if (groupData.translation && groupData.translation.locale && groupData.translation.title) {
+//                   groupData.translations = [{
+//                       locale: groupData.translation.locale,
+//                       title: groupData.translation.title
+//                   }];
+//               }
+//               // If there's a title object with multiple locales
+//               else if (typeof groupData.title === 'object') {
+//                   groupData.translations = Object.keys(groupData.title).map(locale => ({
+//                       locale,
+//                       title: groupData.title[locale]
+//                   }));
+//               }
+//           }
+
+//           // Ensure 'active' is a boolean value for the Switch component
+//           groupData.active = groupData.active === 1 || groupData.active === true;
+
+//           return { data: groupData };
+//       } else {
+//           console.log('No group details found.');
+//           return { data: null };
+//       }
+//   } catch (error) {
+//       console.error('Error fetching group details:', error);
+//       throw error;
+//   }
+// };
+
+
 export const getAllGroupsById = async (orgId, uid, payload) => {
   try {
-      const docRef = doc(db, `T_extra_groups`, uid);
+      const docRef = doc(db, `T_extra_groups`, uid); // Fetch the group by ID from Firestore
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists() && docSnap.data()) {
-          console.log('Unit details found:', docSnap.data());
+          console.log('Group details found:', docSnap.data());
           let groupData = docSnap.data();
 
           // Set id and uuid
           groupData.id = docSnap.id;
           groupData.uuid = docSnap.id;
 
-          // Format data to match what the form expects
-          // If translations doesn't exist or is empty, create it from title data
+          // Fetch related extra_values for this group
+          const extraValuesRef = collection(db, `T_extra_values`);
+          const q = query(extraValuesRef, where("extra_group_id", "==", uid)); // Filtering extra_values based on the group ID
+          const extraValuesSnap = await getDocs(q);
+
+          const extraValues = [];
+          extraValuesSnap.forEach(doc => {
+              let extraValue = doc.data();
+              extraValue.id = doc.id;
+              extraValue.uuid = doc.id;
+              extraValues.push(extraValue);
+          });
+
+          // Attach the extra_values to the group data
+          groupData.extra_values = extraValues;
+
+          // Format translations
           if (!groupData.translations || groupData.translations.length === 0) {
               // If there's a translation object with locale and title
               if (groupData.translation && groupData.translation.locale && groupData.translation.title) {
@@ -160,7 +222,7 @@ export const getAllGroupsById = async (orgId, uid, payload) => {
               }
           }
 
-          // Ensure 'active' is a boolean value for the Switch component
+          // Ensure 'active' is a boolean value
           groupData.active = groupData.active === 1 || groupData.active === true;
 
           return { data: groupData };
@@ -173,6 +235,9 @@ export const getAllGroupsById = async (orgId, uid, payload) => {
       throw error;
   }
 };
+
+
+
 
 export const updateGroups = async (uid, params) => {
   try {
