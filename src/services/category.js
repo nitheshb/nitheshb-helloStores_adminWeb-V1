@@ -1,5 +1,4 @@
-import { getAllCategories, getAllCategoriesById ,createCategoriesDb,  updateCategory, deleteCategory} from './dbQueries/q_categories';
-
+import { getAllCategories, getAllCategoriesById, createCategoriesDb, updateCategory, deleteCategory, setActiveCategory } from './dbQueries/q_categories';
 import request from './request';
 
 const categoryService = {
@@ -15,7 +14,8 @@ const categoryService = {
   //   request.delete(`dashboard/admin/categories/delete`, { params }),
   search: (params) =>
     request.get('dashboard/admin/categories/search', { params }),
-  setActive: (id) => request.post(`dashboard/admin/categories/${id}/active`),
+  // Legacy setActive replaced with our Firebase implementation
+  // setActive: (id) => request.post(`dashboard/admin/categories/${id}/active`),
   dropAll: () => request.get(`dashboard/admin/categories/drop/all`),
   restoreAll: () => request.get(`dashboard/admin/categories/restore/all`),
   export: (params) =>
@@ -27,14 +27,15 @@ const categoryService = {
       {},
       { params },
     ),
-
-    // new
-
-      getAll: (params) => getAllCategories('spark', { params }),
-      getById: (id, params) => getAllCategoriesById('spark', id, { params }),
-      create: (params) => createCategoriesDb('spark', { params }),
-      update: (id, params) => updateCategory( id,params ),
-      delete: (params) => deleteCategory(params),
+   
+  // new     
+  getAll: (params) => getAllCategories('spark', { params }),
+  getById: (id, params) => getAllCategoriesById('spark', id, { params }),
+  create: (params) => createCategoriesDb('spark', { params }),
+  update: (id, params) => updateCategory(id, params),
+  delete: (params) => deleteCategory(params),
+  // Added setActive function that uses our new Firebase implementation
+  setActive: (id) => setActiveCategory(`dashboard/admin/categories/${id}`),
 };
 
 export default categoryService;
