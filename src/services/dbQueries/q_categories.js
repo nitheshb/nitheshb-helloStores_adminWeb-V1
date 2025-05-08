@@ -395,3 +395,64 @@ export const deleteCategory = async (params) => {
     throw new Error('Invalid parameter format for deletion');
   }
 };
+
+
+export const setActiveCategory = async (id) => {
+  try {
+    // Extract the actual ID from the path if needed
+    const categoryId = id.includes('/') ? id.split('/').pop() : id;
+    console.log('Toggling active status for category ID:', categoryId);
+
+    // Use the same collection name as all other functions
+    const docRef = doc(db, `p_category`, categoryId);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      console.error(`Category with ID ${categoryId} not found`);
+      throw new Error(`Category with ID ${categoryId} not found`);
+    }
+
+    // Get current data and toggle the active status
+    const categoryData = docSnap.data();
+    const currentActive = categoryData.active === true;
+    const newActive = !currentActive;
+    console.log(`Toggling active status from ${currentActive} to ${newActive}`);
+
+    // Update the document with the toggled active status
+    await updateDoc(docRef, {
+      active: newActive,
+      updated_at: Timestamp.now().toMillis()
+    });
+
+    // Make sure title is available
+    const title = categoryData.title || 
+                 (categoryData.translations && categoryData.translations.length > 0 
+                    ? categoryData.translations[0].title : "");
+
+    // Prepare and return the response in the expected format
+    const response = {
+      timestamp: new Date().toISOString(),
+      status: true,
+      data: {
+        id: categoryId,
+        uuid: categoryId,
+        active: newActive,
+        created_at: categoryData.created_at || Timestamp.now().toMillis(),
+        updated_at: Timestamp.now().toMillis(),
+        title: title,  // Always return title in response
+        translation: {
+          id: categoryId,
+          locale: "en",
+          title: title
+        },
+        locales: categoryData.locales || ["en"]
+      }
+    };
+
+    console.log('Category active status toggled successfully:', response);
+    return response;
+  } catch (error) {
+    console.error('Error toggling category active status:', error);
+    throw error;
+  }
+};
