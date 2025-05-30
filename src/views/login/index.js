@@ -192,7 +192,7 @@ const Login = () => {
                           htmlType='submit'
                           className={cls.loginFormButton}
                           loading={loading}
-                          disabled={!Boolean(recaptcha)}
+                          // disabled={!Boolean(recaptcha)}
                         >
                           {t('login')}
                         </Button>
