@@ -1,7 +1,7 @@
 import request from './request';
-import{getAllProducts, ExtrasGroupsDb, getAllproductsSnap, getAllProductsById, createProductsDb, updateProducts, deleteProducts} from './dbQueries/q_product';
+import{getAllProducts, ExtrasGroupsDb, getAllproductsSnap, getAllProductsById, createProductsDb, updateProducts, deleteProducts, createStocksDb} from './dbQueries/q_product';
 import { update } from 'lodash';
-              
+             
 const productService = {
   //  getAll: (params) =>
   //   request.get('dashboard/admin/products/paginate', { params }),
@@ -19,33 +19,38 @@ const productService = {
   restoreAll: () => request.get(`dashboard/admin/products/restore/all`),
   // extras: (uuid, data) =>
   //   request.post(`dashboard/admin/products/${uuid}/extras`, data),
-  stocks: (uuid, data) =>
-    request.post(`dashboard/admin/products/${uuid}/stocks`, data),
+  // stocks: (uuid, data) =>
+  //   request.post(`dashboard/admin/products/${uuid}/stocks`, data),
   properties: (uuid, data) =>
     request.post(`dashboard/admin/products/${uuid}/properties`, data),
   setActive: (uuid) =>
     request.post(`dashboard/admin/products/${uuid}/active`, {}),
   getStock: (params) =>
     request.get(`dashboard/admin/stocks/select-paginate`, { params }),
-  updateStatus: (uuid, params) =>
-    request.post(
-      `dashboard/admin/products/${uuid}/status/change`,
-      {},
-      { params },
-    ),
+  // updateStatus: (uuid, params) =>
+  //   request.post(
+  //     `dashboard/admin/products/${uuid}/status/change`,
+  //     {},
+  //     { params },
+  //   ),
   sync: (data) =>
     request.post(`dashboard/admin/products/parent/sync`, data, {}),
-
-
-
+ 
+ 
+ 
     getAll: (params) => getAllProducts('spark', { params }),
     getById: (id, params) => getAllProductsById('spark', id, { params }),
     create: (params) => createProductsDb('spark', { params }),
     update: (id, params) => updateProducts( id,params ),
     delete: (params) => deleteProducts(params),
-    extras: (id, params) => ExtrasGroupsDb(`dashboard/admin/products/${id}/extras`, params)
-    
-    
-};
+    stocks: (uuid, data) => createStocksDb(uuid, data),
+    extras: (id, params) => ExtrasGroupsDb(`dashboard/admin/products/${id}/extras`, params),
+    updateStatus: (id, params) => ExtrasGroupsDb( `dashboard/admin/products/${id}/status/change`,
+      {},
+      { params },),
 
+   
+   
+};
+ 
 export default productService;

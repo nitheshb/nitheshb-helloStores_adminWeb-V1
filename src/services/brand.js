@@ -1,4 +1,4 @@
-import { createBrandDb, getAllBrands ,getAllBrandsSnap,  getAllBrandsById, updateBrand, deleteBrand} from './dbQueries/q_brand';
+import { createBrandDb, getAllBrands ,getAllBrandsSnap, searchByBrand, getAllBrandsById, updateBrand, deleteBrand} from './dbQueries/q_brand';
 import request from './request';
 import { update } from 'lodash';
 
@@ -15,8 +15,8 @@ const brandService = {
   //   request.put(`dashboard/admin/brands/${id}`, {}, { params }),
   // delete: (params) =>
   //   request.delete(`dashboard/admin/brands/delete`, { params }),
-  search: (search = '') =>
-    request.get(`dashboard/admin/brands/search?search=${search}`),
+  // search: (search = '') =>
+  //   request.get(`dashboard/admin/brands/search?search=${search}`),
   dropAll: () => request.get(`dashboard/admin/brands/drop/all`),
   restoreAll: () => request.get(`dashboard/admin/brands/restore/all`),
   // new
@@ -26,6 +26,9 @@ const brandService = {
   create: (params) => createBrandDb('spark', { params }),
   update: (id, params) => updateBrand( id,params ),
   delete: (params) => deleteBrand(params),
+  // search: (search = '') => searchByBrand(`dashboard/admin/brands/search?search=${search}`),
+  search: (searchTerm) => searchByBrand(searchTerm),
+
 };
 
 export default brandService;

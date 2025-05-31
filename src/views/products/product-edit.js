@@ -61,6 +61,7 @@ const ProductsEdit = () => {
       .getById(uuid)
       .then((res) => {
         const extras = {};
+        console.log("fetch Product", res)
         res?.data?.stocks?.forEach((stock) => {
           stock?.extras?.forEach((extra) => {
             if (extra?.extra_group_id in extras) {
@@ -102,15 +103,15 @@ const ProductsEdit = () => {
           kitchen: createSelectObject(res?.data?.kitchen),
           images: createImages(res?.data?.galleries),
           extras: Object.values(extras),
-          stocks: res.data.stocks.map((stock) => ({
+          stocks: res?.data?.stocks?.map((stock) => ({
             ...stock,
-            ...Object.assign(
+            ...Object?.assign(
               {},
-              ...stock.extras.map((extra, idx) => ({
-                [`extras[${idx}]`]: extra.id,
+              ...stock?.extras?.map((extra, idx) => ({
+                [`extras[${idx}]`]: extra?.id,
               })),
             ),
-            quantity: stock.quantity || 0,
+            quantity: stock?.quantity || 0,
             extras: undefined,
           })),
           properties: res.data.properties.map((item, index) => ({

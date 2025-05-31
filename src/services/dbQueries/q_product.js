@@ -1,9 +1,9 @@
-import {Timestamp, db,doc,collection, query, where, setDoc, getDocs, addDoc, updateDoc, deleteDoc, getDoc, onSnapshot } from 'db';
+import {Timestamp, db,doc,collection, query, where, setDoc, getDocs, addDoc, updateDoc, deleteDoc, getDoc, onSnapshot, orderBy } from 'db';
 import { v4 as uuidv4 } from 'uuid'
 
 
 export const createProductsDb = async (orgId, payload) => {
-  const filesCollectionRef = collection(db, 'T-products');
+  const filesCollectionRef = collection(db, 'T_products');
   const { params } = payload;
   const uuid = uuidv4(); // UUID for the product
   const translationId = uuidv4(); // UUID for translation
@@ -113,73 +113,333 @@ export const createProductsDb = async (orgId, payload) => {
   }
 };
 
-export const createStocksDb = async (productId, stocks = []) => {
+export const createStocksDb = async (productId, data) => {
+  console.log('createStocksDb called with:', { productId, data });
   const collectionRef = collection(db, 'T_stocks');
-  for (const stock of stocks) {
-    const id = uuidv4();
-    const docRef = doc(collectionRef, id);
-    await setDoc(docRef, {
-      id,
-      countable_id: productId,
-      sku: stock.sku,
-      price: stock.price,
-      quantity: stock.quantity,
-      tax: stock.tax,
-      total_price: stock.total_price,
-      addons: stock.addons || [],
-      extras: stock.extras || []
+  
+  // Handle the data structure from the form
+  const { extras, delete_ids } = data;
+  console.log('Extracted data:', { extras, delete_ids });
+  
+  // Validate stocks data
+  if (!extras || !Array.isArray(extras) || extras.length === 0) {
+    console.error('Invalid stocks data:', extras);
+    throw new Error('No stocks data provided');
+  }
+
+  try {
+    // First handle any deletions if needed
+    if (delete_ids && Array.isArray(delete_ids)) {
+      console.log('Processing deletions for IDs:', delete_ids);
+      for (const id of delete_ids) {
+        console.log('Deleting stock with ID:', id);
+        await deleteDoc(doc(collectionRef, id));
+        console.log('Successfully deleted stock:', id);
+      }
+    }
+
+    // Then create/update stocks
+    console.log('Processing stocks creation/update');
+    for (const stock of extras) {
+      console.log('Processing stock:', stock);
+      
+      // Validate required fields
+      if (typeof stock.price === 'undefined' || typeof stock.quantity === 'undefined') {
+        console.error('Missing required fields in stock:', stock);
+        throw new Error('Stock must have price and quantity');
+      }
+
+      const id = stock.stock_id || uuidv4();
+      console.log('Using stock ID:', id);
+      
+      const docRef = doc(collectionRef, id);
+      
+      // Calculate total_price
+      const tax = Number(stock.tax || 0);
+      const price = Number(stock.price);
+      const total_price = tax === 0 ? price : (price * tax) / 100 + price;
+      
+      const stockData = {
+        id,
+        countable_id: productId,
+        sku: stock.sku || '',
+        price: price,
+        quantity: Number(stock.quantity),
+        tax: tax,
+        total_price: total_price,
+        addons: stock.addons || [],
+        extras: stock.ids || [],
+        created_at: Timestamp.now().toMillis(),
+        updated_at: Timestamp.now().toMillis()
+      };
+      
+      console.log('Saving stock data:', stockData);
+      await setDoc(docRef, stockData);
+      await updateProducts(productId,{price})
+      console.log('Successfully saved stock:', id);
+    }
+    
+    console.log('All stocks processed successfully');
+    return { success: true, message: 'Stocks created successfully' };
+  } catch (error) {
+    console.error('Error in createStocksDb:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      data: { productId, extras, delete_ids }
     });
+    throw error;
   }
 };
 
-
-
+const hardcodedShops = {
+  501: {
+    id: 501,
+    tax: null,
+    open: false,
+    visibility: null,
+    status: 'approved',
+    invite_link: '/shop/invitation//link',
+    products_count: 0,
+    translation: {
+      id: 6,
+      locale: 'en',
+      title: 'Hellostores',
+    },
+    locales: [],
+  },
+};
 
 export const getAllProducts = async (orgId, params) => {
-  console.log('params are ====>', params)
-  // const {params} = params
-  let convertStatus =params?.params?.status ==='published' ? 1: 0
-  const filesQuery = query(
-    collection(db, `T_products`), // change to your collection name
-    where('active', '==', convertStatus),
+  const productsQuery = query(
+    collection(db, 'T_products'),
+    orderBy('created_at', 'desc')
   );
+
+  const querySnapshot = await getDocs(productsQuery);
+
+  // Helper function to get translation
+  const getTranslation = async (collectionName, id, fallback) => {
+    if (!id) return { id, translation: { title: fallback } };
+    try {
+      const ref = doc(db, collectionName, String(id));
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        const data = snap.data();
+        return {
+          id,
+          ...data,
+          translation: data.translation || { title: fallback },
+        };
+      }
+    } catch (e) {
+      console.warn(`Failed to fetch ${collectionName}/${id}`, e);
+    }
+    return { id, translation: { title: fallback } };
+  };
+
+  const files = await Promise.all(
+    querySnapshot.docs.map(async (docSnap) => {
+      const data = docSnap.data();
+
+      // Fetch additional information for category, brand, and shop
+      const [category, brand, kitchen] = await Promise.all([
+        getTranslation('p_category', data.category_id, 'N/A'),
+        getTranslation('brands', data.brand_id, 'N/A'),
+        getTranslation('kitchen', data.kitchen_id, 'N/A'), // Assuming kitchen exists in the DB
+      ]);
+
+      const shopId = String(data.shop_id); // Convert to string
+      // Get the shop data from the hardcoded mapping
+      const shop = hardcodedShops[shopId] || { translation: { title: 'Unknown Shop' } };
+
+      // Fetch stocks, addons, and extras
+      const stocks = await Promise.all(
+        (data.stocks || []).map(async (stock) => {
+          const addons = await Promise.all(
+            (stock.addons || []).map(async (addon) => {
+              const product = addon.product ? await getTranslation('T_products', addon.product.id, 'N/A') : null;
+              return {
+                ...addon,
+                product,
+              };
+            })
+          );
+
+          const extras = await Promise.all(
+            (stock.extras || []).map(async (extra) => {
+              const group = extra.group ? await getTranslation('extra_group', extra.group.id, 'N/A') : null;
+              return {
+                ...extra,
+                group,
+              };
+            })
+          );
+
+          return {
+            ...stock,
+            addons,
+            extras,
+          };
+        })
+      );
+
+      // Return final product data
+      return {
+        ...data,
+        id: docSnap.id,
+        uuid: docSnap.id, // Assuming uuid is the same as id in this case
+        category,
+        brand,
+        shop,
+        kitchen,
+        stocks,
+        reviews: data.reviews || [], // If reviews exist
+        translations: data.translations || [{ locale: 'en', title: data.translation?.title || 'N/A' }],
+        locales: data.locales || ['en'],
+        shopTitle: shop.translation?.title || 'N/A',
+      };
+    })
+  );
+
+  return {
+    data: files,
+    meta: {
+      current_page: 1,
+      from: 1,
+      last_page: 1,
+      to: files.length,
+      total: files.length,
+    },
+  };
+};
+
+
+export const getAllProductsById = async (orgId, uid, params = {}) => {
+  try {
+    console.log('Fetching product by ID:', uid);
+
+    const docRef = doc(db, 'T_products', uid);
+    const docSnap = await getDoc(docRef);
+   
+    const filesQuery = query(
+    collection(db, `T_stocks`), // change to your collection name
+    where('countable_id','==',uid),  );
+
   const querySnapshot = await getDocs(filesQuery);
+  let stocks = []
+  console.log("stocksData",querySnapshot.docs)
   const files = querySnapshot.docs.map((doc) => {
+      console.log("stocksData",doc)
+
     let x = doc.data();
+    stocks.push(x);
     x.id = doc.id; 
     x.uuid = doc.id;
     return x;
   });
-  
-  
-let y  = {data:files, 
-   "meta": {
-  "current_page": 1,
-  "from": 1,
-  "last_page": 1,
-  "links": [
-      {
-          "url": null,
-          "label": "&laquo; Previous",
-          "active": false
-      },
-      {
-          "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/T_products\/paginate?page=1",
-          "label": "1",
-          "active": true
-      },
-      {
-          "url": null,
-          "label": "Next &raquo;",
-          "active": false
+    if (docSnap.exists() && docSnap.data()) {
+      const data = docSnap.data();
+      console.log('Product found:', data);
+
+      const defaultLocale = data.locales?.[0] || 'en';
+
+      // Safe fallback for nested documents
+      const getDocWithTranslation = async (collectionName, id, fallbackTitle) => {
+        if (!id) return null;
+        try {
+          const ref = doc(db, collectionName, String(id));
+          const snap = await getDoc(ref);
+          if (snap.exists()) {
+            const docData = snap.data();
+            return {
+              id,
+              ...docData,
+              translation: docData.translation || {
+                locale: defaultLocale,
+                title: docData.title || fallbackTitle
+              }
+            };
+          } else {
+            console.log(`No data found for ${collectionName} with ID: ${id}`);
+          }
+        } catch (error) {
+          console.warn(`Failed to fetch ${collectionName}/${id}:`, error);
+        }
+        return {
+          id,
+          translation: {
+            locale: defaultLocale,
+            title: fallbackTitle
+          }
+        };
+      };
+
+      // Look up related references
+      const [category, brand, unit, kitchen, extras] = await Promise.all([
+        getDocWithTranslation('p_category', data.category_id, 'Uncategorized'),
+        getDocWithTranslation('P_brands', data.brand_id, 'No brand'),
+        getDocWithTranslation('T_unit', data.unit_id, 'Unit'),
+        getDocWithTranslation('T_kitchen', data.kitchen_id, 'Kitchen'),
+        getDocWithTranslation('T_extra_groups', data.extra_id, 'Extra'),
+
+      ]);
+
+      // Get the shop data from the hardcoded mapping
+      const shop = hardcodedShops[data.shop_id] || { translation: { title: 'Unknown Shop' } };
+
+      const galleries = [];
+      if (data.img) {
+        galleries.push({
+          id: data.galleries?.[0]?.id || Math.floor(Math.random() * 100) + 1,
+          title: data.img.split('/').pop() || '',
+          type: 'products',
+          loadable_type: 'App\\Models\\Product',
+          loadable_id: data.id || uid,
+          path: data.img,
+          base_path: 'api.hellostores.in/storage/images/'
+        });
       }
-  ],
-  "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/T_products\/paginate",
-  "per_page": "1000",
-  "to": files.length,
-  "total": files.length
-}}
-  return y;
+
+      const formattedProduct = {
+        ...data,
+        id: data.id || uid,
+        uuid: uid,
+        translation: data.translation || {
+          id: uuidv4(),
+          locale: defaultLocale,
+          title: '',
+          description: ''
+        },
+        translations: data.translations || [
+          {
+            id: data.translation?.id || uuidv4(),
+            locale: data.translation?.locale || defaultLocale,
+            title: data.translation?.title || '',
+            description: data.translation?.description || ''
+          }
+        ],
+        locales: data.locales || [defaultLocale],
+        properties: data.properties || [],
+        galleries,
+        category,
+        brand,
+        unit,
+        kitchen,
+        shop,
+        extras,
+        stocks:stocks
+      };
+
+      return { data: formattedProduct };
+    } else {
+      console.log('No product found with ID:', uid);
+      return { data: null };
+    }
+  } catch (error) {
+    console.error('Error fetching product by ID:', error);
+    throw error;
+  }
 };
 
 export const getAllProductsSnap = async (params, callback) => {
@@ -241,64 +501,54 @@ export const getAllProductsSnap = async (params, callback) => {
   // const {params} = params
 
 };
-export const getAllProductsById = async (orgId, uid, payload) => {
-  try {
-    const docRef = doc(db, `T_products`, uid) // step 1: change to your collection name
-    const docSnap = await getDoc(docRef)
 
-    console.log('Document data:', docSnap.data());
-
-    if (docSnap.exists() && docSnap.data()) {
-      console.log('Brokerage details found:', docSnap.data());
-      let x =docSnap.data();
-      x.id = docSnap.id;
-      x.uuid = doc.id;
-      x.img = x['images[0]'];
-
-      return docSnap.data();
-    } else {
-      console.log('No brokerage details found.');
-      return null;
-    }
-  } catch (error) {
-    console.error('Error fetching brokerage details:', error);
-    throw error;
-  }
-};
 
 export const updateProducts = async (
   uid,params
 
 ) => {
+  const cleanedData = replaceUndefined(params);
   try {
   
 console.log('params are ====>', uid,params)
 let x = params
-x['images[0]'] = ""
 
 
     await updateDoc(doc(db, `T_products`, uid), { // step 1: change to your collection name
-      title: x.title,
-      active: x.active
+    ...cleanedData,
+    status: "pending"
+
     })
-    // enqueueSnackbar('Cost Sheet Updated for Customer', {
-    //   variant: 'success',
-    // })
+    console.log("successfully updated", cleanedData)
   } catch (error) {
     console.log('Failed updated T_products', error, {
-      ...params,
+      ...cleanedData,
     })
   
   }
 }
-export const deleteProducts= async (params) => {
-  console.log('delte user is ', params)
-  params.map(async(item) => {
-   await deleteDoc(doc(db, 'T_products', item)) // step 1: change to your collection name
-  })
 
-}
 
+export const deleteProducts = async (params) => {
+    console.log('delete Product is ', params);
+
+    const ids = Object.values(params);
+
+    if (Array.isArray(ids)) {
+        try {
+            await Promise.all(
+                ids.map(async (item) => {
+                    await deleteDoc(doc(db, 'T_products', item));
+                })
+            );
+            console.log('All products deleted successfully');
+        } catch (error) {
+            console.error('Error deleting products:', error);
+        }
+    } else {
+        console.error('Expected params to contain an array of IDs, but got:', typeof ids);
+    }
+};
 
 export const ExtrasGroupsDb = async (url, params) => {
   try {
@@ -323,4 +573,16 @@ export const ExtrasGroupsDb = async (url, params) => {
 
 
 
-
+function replaceUndefined(obj) {
+  if (Array.isArray(obj)) {
+    return obj.map(replaceUndefined);
+  } else if (obj !== null && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, replaceUndefined(value)])
+    );
+  } else if (typeof obj === 'undefined') {
+    return '';
+  } else {
+    return obj;
+  }
+}
