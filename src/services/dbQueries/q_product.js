@@ -113,6 +113,7 @@ export const createProductsDb = async (orgId, payload) => {
   }
 };
 
+
 export const createStocksDb = async (productId, data) => {
   console.log('createStocksDb called with:', { productId, data });
   const collectionRef = collection(db, 'T_stocks');
@@ -159,6 +160,24 @@ export const createStocksDb = async (productId, data) => {
       const price = Number(stock.price);
       const total_price = tax === 0 ? price : (price * tax) / 100 + price;
       
+      // Process extras - extract IDs from the form data
+      const extrasIds = [];
+      if (stock.extras && Array.isArray(stock.extras)) {
+        // If extras is already an array of IDs
+        extrasIds.push(...stock.extras);
+      } else if (stock.ids && Array.isArray(stock.ids)) {
+        // If extras are in the 'ids' field
+        extrasIds.push(...stock.ids);
+      } else {
+        // Check for extras in the format extras[0], extras[1], etc.
+        Object.keys(stock).forEach(key => {
+          const extrasMatch = key.match(/^extras\[(\d+)\]$/);
+          if (extrasMatch && stock[key]) {
+            extrasIds.push(stock[key]);
+          }
+        });
+      }
+      
       const stockData = {
         id,
         countable_id: productId,
@@ -167,15 +186,17 @@ export const createStocksDb = async (productId, data) => {
         quantity: Number(stock.quantity),
         tax: tax,
         total_price: total_price,
+        addon: stock.addon || false,
         addons: stock.addons || [],
-        extras: stock.ids || [],
+        extras: extrasIds, // Store as array of extra value IDs
+        bonus: stock.bonus || null,
         created_at: Timestamp.now().toMillis(),
         updated_at: Timestamp.now().toMillis()
       };
       
       console.log('Saving stock data:', stockData);
       await setDoc(docRef, stockData);
-      await updateProducts(productId,{price})
+      await updateProducts(productId, { price });
       console.log('Successfully saved stock:', id);
     }
     
@@ -191,7 +212,6 @@ export const createStocksDb = async (productId, data) => {
     throw error;
   }
 };
-
 const hardcodedShops = {
   501: {
     id: 501,
@@ -251,7 +271,7 @@ export const getAllProducts = async (orgId, params) => {
 
       const shopId = String(data.shop_id); // Convert to string
       // Get the shop data from the hardcoded mapping
-      const shop = hardcodedShops[shopId] || { translation: { title: 'Unknown Shop' } };
+      const shop = hardcodedShops[shopId] || { translation: { title: 'Noma Haus' } };
 
       // Fetch stocks, addons, and extras
       const stocks = await Promise.all(
@@ -322,22 +342,80 @@ export const getAllProductsById = async (orgId, uid, params = {}) => {
     const docRef = doc(db, 'T_products', uid);
     const docSnap = await getDoc(docRef);
    
+    // Fetch stocks for this product
     const filesQuery = query(
-    collection(db, `T_stocks`), // change to your collection name
-    where('countable_id','==',uid),  );
+      collection(db, `T_stocks`),
+      where('countable_id','==',uid)
+    );
 
-  const querySnapshot = await getDocs(filesQuery);
-  let stocks = []
-  console.log("stocksData",querySnapshot.docs)
-  const files = querySnapshot.docs.map((doc) => {
-      console.log("stocksData",doc)
+    const querySnapshot = await getDocs(filesQuery);
+    let stocks = [];
+    
+    console.log("stocksData", querySnapshot.docs);
+    
+    // Process each stock document
+    for (const stockDoc of querySnapshot.docs) {
+      let stockData = stockDoc.data();
+      stockData.id = stockDoc.id; 
+      stockData.uuid = stockDoc.id;
+      
+      // Process extras for this stock
+      if (stockData.extras && Array.isArray(stockData.extras)) {
+        const processedExtras = [];
+        
+        for (const extraId of stockData.extras) {
+          try {
+            // Fetch the extra value document
+            const extraValueRef = doc(db, 'T_extra_values', String(extraId));
+            const extraValueSnap = await getDoc(extraValueRef);
+            
+            if (extraValueSnap.exists()) {
+              const extraValueData = extraValueSnap.data();
+              
+              // Fetch the group data for this extra value
+              let groupData = null;
+              if (extraValueData.extra_group_id) {
+                const groupRef = doc(db, 'T_extra_groups', String(extraValueData.extra_group_id));
+                const groupSnap = await getDoc(groupRef);
+                
+                if (groupSnap.exists()) {
+                  groupData = groupSnap.data();
+                }
+              }
+              
+              // Structure the extra data to match the expected JSON format
+              const extraItem = {
+                id: extraValueSnap.id,
+                extra_group_id: extraValueData.extra_group_id,
+                value: extraValueData.value || '',
+                active: extraValueData.active !== undefined ? extraValueData.active : true,
+                group: groupData ? {
+                  id: groupData.id || extraValueData.extra_group_id,
+                  type: groupData.type || 'text',
+                  active: groupData.active !== undefined ? groupData.active : true,
+                  translation: groupData.translation || {
+                    id: groupData.id || extraValueData.extra_group_id,
+                    locale: 'en',
+                    title: groupData.title || 'Unknown Group'
+                  }
+                } : null
+              };
+              
+              processedExtras.push(extraItem);
+            }
+          } catch (error) {
+            console.error('Error fetching extra data for ID:', extraId, error);
+          }
+        }
+        
+        stockData.extras = processedExtras;
+      } else {
+        stockData.extras = [];
+      }
+      
+      stocks.push(stockData);
+    }
 
-    let x = doc.data();
-    stocks.push(x);
-    x.id = doc.id; 
-    x.uuid = doc.id;
-    return x;
-  });
     if (docSnap.exists() && docSnap.data()) {
       const data = docSnap.data();
       console.log('Product found:', data);
@@ -382,7 +460,6 @@ export const getAllProductsById = async (orgId, uid, params = {}) => {
         getDocWithTranslation('T_unit', data.unit_id, 'Unit'),
         getDocWithTranslation('T_kitchen', data.kitchen_id, 'Kitchen'),
         getDocWithTranslation('T_extra_groups', data.extra_id, 'Extra'),
-
       ]);
 
       // Get the shop data from the hardcoded mapping
@@ -428,7 +505,7 @@ export const getAllProductsById = async (orgId, uid, params = {}) => {
         kitchen,
         shop,
         extras,
-        stocks:stocks
+        stocks: stocks // Use the processed stocks with proper extras
       };
 
       return { data: formattedProduct };
@@ -441,7 +518,6 @@ export const getAllProductsById = async (orgId, uid, params = {}) => {
     throw error;
   }
 };
-
 export const getAllProductsSnap = async (params, callback) => {
   console.log('snap are ====>', params)
     try {
@@ -503,31 +579,160 @@ export const getAllProductsSnap = async (params, callback) => {
 };
 
 
-export const updateProducts = async (
-  uid,params
-
-) => {
-  const cleanedData = replaceUndefined(params);
+export const updateProducts = async (uid, params) => {
   try {
-  
-console.log('params are ====>', uid,params)
-let x = params
+    console.log('Updating product with ID:', uid, 'params:', params);
+    
+    // First, get the existing product data to preserve existing translations
+    const docRef = doc(db, 'T_products', uid);
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
+      throw new Error(`Product with ID ${uid} not found`);
+    }
+    
+    const existingData = docSnap.data();
+    
+    // Process translations similar to createProductsDb
+    const translations = [...(existingData.translations || [])];
+    const locales = [...(existingData.locales || ['en'])];
+    const titleData = { ...(existingData.title || {}) };
+    const descriptionData = {};
+    
+    // Extract existing descriptions from translations
+    existingData.translations?.forEach(trans => {
+      if (trans.description) {
+        descriptionData[trans.locale] = trans.description;
+      }
+    });
+    
+    // Process new title and description fields with patterns title[locale] and description[locale]
+    Object.keys(params).forEach(key => {
+      const titleMatch = key.match(/^title\[(.*)\]$/);
+      if (titleMatch && titleMatch[1] && params[key] !== undefined && params[key].trim() !== '') {
+        const locale = titleMatch[1];
+        titleData[locale] = params[key];
+        
+        // Update or add translation for this locale
+        const translationIndex = translations.findIndex(t => t.locale === locale);
+        if (translationIndex !== -1) {
+          translations[translationIndex].title = params[key];
+        } else {
+          translations.push({
+            locale: locale,
+            title: params[key],
+            description: descriptionData[locale] || '',
+          });
+        }
+        
+        // Add to locales array if not present
+        if (!locales.includes(locale)) {
+          locales.push(locale);
+        }
+      }
+      
+      const descriptionMatch = key.match(/^description\[(.*)\]$/);
+      if (descriptionMatch && descriptionMatch[1] && params[key] !== undefined && params[key].trim() !== '') {
+        const locale = descriptionMatch[1];
+        descriptionData[locale] = params[key];
+        
+        // Update or add description to existing translation
+        const translationIndex = translations.findIndex(t => t.locale === locale);
+        if (translationIndex !== -1) {
+          translations[translationIndex].description = params[key];
+        } else {
+          translations.push({
+            locale: locale,
+            title: titleData[locale] || '',
+            description: params[key],
+          });
+        }
+        
+        // Add to locales array if not present
+        if (!locales.includes(locale)) {
+          locales.push(locale);
+        }
+      }
+    });
+    
+    // Process images similar to createProductsDb
+    const images = [];
+    let hasNewImages = false;
+    Object.keys(params).forEach(key => {
+      const imageMatch = key.match(/^images\[(\d+)\]$/);
+      if (imageMatch && params[key]) {
+        images[parseInt(imageMatch[1])] = params[key];
+        hasNewImages = true;
+      }
+    });
+    
+    // Clean up images array and get primary image
+    const cleanedImages = images.filter(img => img !== undefined);
+    const imageUrl = cleanedImages.length > 0 ? cleanedImages[0] : existingData.img;
+    
+    // Use first locale as primary translation
+    const primaryLocale = locales[0];
+    const primaryTitle = titleData[primaryLocale] || existingData.translation?.title || '';
+    const primaryDescription = descriptionData[primaryLocale] || existingData.translation?.description || '';
+    
+    // Build update data
+    const updateData = {
+      updated_at: Timestamp.now().toMillis(),
+    };
+    
+    // Add non-translation fields
+    if (params.tax !== undefined) updateData.tax = Number(params.tax) || 0;
+    if (params.interval !== undefined) updateData.interval = Number(params.interval) || 0;
+    if (params.min_qty !== undefined) updateData.min_qty = Number(params.min_qty) || 0;
+    if (params.max_qty !== undefined) updateData.max_qty = Number(params.max_qty) || 0;
+    if (params.brand_id !== undefined) updateData.brand_id = params.brand_id || null;
+    if (params.category_id !== undefined) updateData.category_id = params.category_id || null;
+    if (params.unit_id !== undefined) updateData.unit_id = params.unit_id || null;
+    if (params.kitchen_id !== undefined) updateData.kitchen_id = params.kitchen_id || null;
+    if (params.active !== undefined) updateData.active = params.active === true || params.active === 1 ? 1 : 0;
+    if (params.price !== undefined) updateData.price = Number(params.price) || 0;
+    
+    // Add translation fields if they were updated
+    if (Object.keys(titleData).length > 0) {
+      updateData.title = titleData;
+      updateData.translations = translations;
+      updateData.locales = locales;
+      updateData.translation = {
+        id: existingData.translation?.id || uuidv4(),
+        locale: primaryLocale,
+        title: primaryTitle,
+        description: primaryDescription,
+      };
+    }
+    
+    // Add image fields if they were updated
+    if (hasNewImages) {
+      updateData.img = imageUrl;
+      updateData.images = cleanedImages;
+    }
+    
+    updateData.status = "pending";
 
-
-    await updateDoc(doc(db, `T_products`, uid), { // step 1: change to your collection name
-    ...cleanedData,
-    status: "pending"
-
-    })
-    console.log("successfully updated", cleanedData)
+    // Clean the data to replace undefined values
+    const cleanedData = replaceUndefined(updateData);
+    
+    console.log('Updating product with data:', cleanedData);
+    
+    await updateDoc(docRef, cleanedData);
+    
+    console.log("Successfully updated product:", uid);
+    
+    return { 
+      success: true, 
+      message: 'Product updated successfully',
+      data: { uuid: uid }
+    };
+    
   } catch (error) {
-    console.log('Failed updated T_products', error, {
-      ...cleanedData,
-    })
-  
+    console.error('Failed to update product:', error, { uid, params });
+    throw error;
   }
-}
-
+};
 
 export const deleteProducts = async (params) => {
     console.log('delete Product is ', params);
@@ -586,3 +791,50 @@ function replaceUndefined(obj) {
     return obj;
   }
 }
+
+
+export const setActiveProducts = async (id) => {
+    try {
+        // Extract the actual ID from the path if needed
+        const productId = id.includes('/') ? id.split('/').pop() : id;
+
+        // Get the current document data
+        const docRef = doc(db, 'T_products', productId);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            throw new Error(`Product with ID ${productId} not found`);
+        }
+
+        // Get current data and toggle the active status
+        const productData = docSnap.data();
+        const currentActive = productData.active === 1 || productData.active === true;
+        const newActive = !currentActive;
+
+        // Update the document with the toggled active status
+        await updateDoc(docRef, {
+            active: newActive ? 1 : 0,
+            updated_at: Timestamp.now().toMillis()
+        });
+
+        // Prepare and return the response in the expected format
+        const response = {
+            timestamp: new Date().toISOString(),
+            status: true,
+            data: {
+                id: parseInt(productId) || productId, // Try to parse as integer if possible
+                active: newActive,
+                position: productData.position || "before",
+                "created_at": Timestamp.now().toMillis(),
+                "updated_at": Timestamp.now().toMillis(),
+                locales: productData.locales || ["en"]
+            }
+        };
+
+        console.log('Product active status toggled successfully:', response);
+        return response;
+    } catch (error) {
+        console.error('Error toggling product active status:', error);
+        throw error;
+    }
+};

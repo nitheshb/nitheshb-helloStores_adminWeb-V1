@@ -1,5 +1,5 @@
 import request from './request';
-import{getAllProducts, ExtrasGroupsDb, getAllproductsSnap, getAllProductsById, createProductsDb, updateProducts, deleteProducts, createStocksDb} from './dbQueries/q_product';
+import{getAllProducts, ExtrasGroupsDb, getAllproductsSnap, getAllProductsById, createProductsDb, updateProducts, deleteProducts, createStocksDb, setActiveProducts} from './dbQueries/q_product';
 import { update } from 'lodash';
              
 const productService = {
@@ -23,8 +23,8 @@ const productService = {
   //   request.post(`dashboard/admin/products/${uuid}/stocks`, data),
   properties: (uuid, data) =>
     request.post(`dashboard/admin/products/${uuid}/properties`, data),
-  setActive: (uuid) =>
-    request.post(`dashboard/admin/products/${uuid}/active`, {}),
+  // setActive: (uuid) =>
+  //   request.post(`dashboard/admin/products/${uuid}/active`, {}),
   getStock: (params) =>
     request.get(`dashboard/admin/stocks/select-paginate`, { params }),
   // updateStatus: (uuid, params) =>
@@ -48,6 +48,8 @@ const productService = {
     updateStatus: (id, params) => ExtrasGroupsDb( `dashboard/admin/products/${id}/status/change`,
       {},
       { params },),
+    setActive: (id) => setActiveProducts(`dashboard/admin/products/active/${id}`),
+      
 
    
    
