@@ -37,7 +37,7 @@ export default function ProductStatusModal({
   return (
     <Modal
       visible={!!data}
-      title={data.title}
+      title={data?.translation?.title || t('product')}
       onCancel={handleCancel}
       footer={[
         <Button type='primary' onClick={() => form.submit()} loading={loading}>

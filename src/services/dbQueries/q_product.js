@@ -83,6 +83,7 @@ export const createProductsDb = async (orgId, payload) => {
     unit_id: params.unit_id || null,
     kitchen_id: params.kitchen_id || null,
     active: params.active === true || params.active === 1 ? 1 : 0,
+    status: params.status && isValidStatus(params.status) ? params.status : PRODUCT_STATUS.PENDING,
     type: 'product',
     created_at: Timestamp.now().toMillis(),
     updated_at: Timestamp.now().toMillis(),
@@ -692,6 +693,18 @@ export const updateProducts = async (uid, params) => {
     if (params.active !== undefined) updateData.active = params.active === true || params.active === 1 ? 1 : 0;
     if (params.price !== undefined) updateData.price = Number(params.price) || 0;
     
+     // Handle status with enum validation
+    if (params.status !== undefined) {
+      if (isValidStatus(params.status)) {
+        updateData.status = params.status;
+      } else {
+        console.warn(`Invalid status provided: ${params.status}. Keeping existing status.`);
+      }
+    } else {
+      // Set default status to PENDING when updating other fields
+      updateData.status = PRODUCT_STATUS.PENDING;
+    }
+    
     // Add translation fields if they were updated
     if (Object.keys(titleData).length > 0) {
       updateData.title = titleData;
@@ -711,7 +724,9 @@ export const updateProducts = async (uid, params) => {
       updateData.images = cleanedImages;
     }
     
-    updateData.status = "pending";
+    // updateData.status = "pending";
+
+   
 
     // Clean the data to replace undefined values
     const cleanedData = replaceUndefined(updateData);
@@ -837,4 +852,63 @@ export const setActiveProducts = async (id) => {
         console.error('Error toggling product active status:', error);
         throw error;
     }
+};
+
+
+
+export const PRODUCT_STATUS = {
+  PENDING: 'pending',
+  PUBLISHED: 'published',
+  UNPUBLISHED: 'unpublished'
+};
+
+// Function to validate status enum
+const isValidStatus = (status) => {
+  return Object.values(PRODUCT_STATUS).includes(status);
+};
+
+// New function to update product status independently
+export const updateProductStatus = async (uuid, status) => {
+  try {
+    console.log('Updating product status:', { uuid, status });
+    
+    // Validate status enum
+    if (!isValidStatus(status)) {
+      throw new Error(`Invalid status: ${status}. Must be one of: ${Object.values(PRODUCT_STATUS).join(', ')}`);
+    }
+    
+    // Check if product exists
+    const docRef = doc(db, 'T_products', uuid);
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
+      throw new Error(`Product with UUID ${uuid} not found`);
+    }
+    
+    // Update only the status field
+    const updateData = {
+      status: status,
+      updated_at: Timestamp.now().toMillis()
+    };
+    
+    await updateDoc(docRef, updateData);
+    
+    console.log(`Product status updated successfully: ${uuid} -> ${status}`);
+    
+    // Return response in the expected format
+    return {
+      timestamp: new Date().toISOString(),
+      status: true,
+      message: "web.record_has_been_successfully_updated",
+      data: {
+        uuid: uuid,
+        status: status,
+        updated_at: updateData.updated_at
+      }
+    };
+    
+  } catch (error) {
+    console.error('Error updating product status:', error);
+    throw error;
+  }
 };
