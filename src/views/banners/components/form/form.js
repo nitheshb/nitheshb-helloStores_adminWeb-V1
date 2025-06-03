@@ -46,6 +46,7 @@ const BannerForm = ({ handleSubmit }) => {
           })),
           clickable: !!res?.data?.clickable,
           active: !!res?.data?.active,
+          show_in: res?.data?.show_in || [],
         };
         if (res?.data?.img) {
           setImageList([createImage(res?.data?.img)]);
@@ -70,6 +71,7 @@ const BannerForm = ({ handleSubmit }) => {
       products: values?.products?.map((item) => item?.value),
       clickable: !!values?.clickable,
       active: !!values?.active,
+      show_in: values?.show_in || [],
       // media
       images: imageList.map((item) => item?.name),
     };

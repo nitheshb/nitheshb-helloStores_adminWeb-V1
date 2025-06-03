@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { shallowEqual, useSelector } from 'react-redux';
-import { Card, Col, Form, Input, Row, Switch } from 'antd';
+import { Card, Col, Form, Input, Row, Switch, Select } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import productService from 'services/product';
 import { InfiniteSelect } from 'components/infinite-select';
@@ -13,6 +13,15 @@ const BannerFormBasic = ({ loading = false }) => {
     shallowEqual,
   );
   const [hasMore, setHasMore] = useState(false);
+
+  const showInOptions = [
+    { label: 'Home Banner', value: 'home banner' },
+    { label: 'Top Seller', value: 'top seller' },
+    { label: 'Featured', value: 'featured' },
+    { label: 'Category Page', value: 'category page' },
+    { label: 'Product Page', value: 'product page' }
+  ];
+
   const fetchProducts = ({ search = '', page = 1 }) => {
     const params = {
       search: search?.length ? search : undefined,
@@ -134,6 +143,25 @@ const BannerFormBasic = ({ loading = false }) => {
               fetchOptions={fetchProducts}
               hasMore={hasMore}
               mode='multiple'
+            />
+          </Form.Item>
+        </Col>
+        <Col span={24}>
+          <Form.Item
+            name='show_in'
+            label={t('show.in')}
+            rules={[
+              {
+                required: true,
+                message: t('required'),
+              },
+            ]}
+          >
+            <Select
+              mode="multiple"
+              style={{ width: '100%' }}
+              placeholder={t('select.locations')}
+              options={showInOptions}
             />
           </Form.Item>
         </Col>

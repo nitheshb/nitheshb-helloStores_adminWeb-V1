@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { Button, Divider, Space, Switch, Table, Tabs, Typography } from 'antd';
+import { Button, Divider, Space, Switch, Table, Tabs, Typography, Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import {
   CopyOutlined,
@@ -58,6 +58,22 @@ const Banners = () => {
       dataIndex: 'img',
       key: 'img',
       render: (img, row) => <ColumnImage image={img} row={row} />,
+    },
+    {
+      title: t('show.in'),
+      dataIndex: 'show_in',
+      key: 'show_in',
+      render: (show_in, record) => {
+        if (!show_in || !Array.isArray(show_in)) return '-';
+        const text = show_in.join(', ');
+        return (
+          <Tooltip title={text}>
+            <span style={{ maxWidth: '200px', display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {text}
+            </span>
+          </Tooltip>
+        );
+      },
     },
     {
       title: t('active'),

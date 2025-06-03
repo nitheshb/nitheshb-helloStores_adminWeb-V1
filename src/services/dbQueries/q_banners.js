@@ -1,4 +1,3 @@
-
 import {
   db,
   doc,
@@ -14,8 +13,7 @@ import {
   onSnapshot,
 } from 'db';
 import { v4 as uuidv4 } from 'uuid';
-
-import { getAllProductsById } from 'firebase.js';
+import { getAllProductsById } from './q_product.js';
 
 
 
@@ -37,9 +35,10 @@ export const createBannerDb = async (orgId, payload) => {
       clickable,
       active,
       images,
+      show_in,
     } = payload.params || payload;
 
-    console.log('Creating banner with data:', { title, description, button_text, url, products, clickable, active, images });
+    console.log('Creating banner with data:', { title, description, button_text, url, products, clickable, active, images, show_in });
 
 
     const imageUrl = Array.isArray(images) && images.length > 0 ? images[0] : '';
@@ -60,6 +59,7 @@ export const createBannerDb = async (orgId, payload) => {
       type: 'banner',
       created_at: timestamp,
       updated_at: timestamp,
+      ...(show_in && { show_in }),
       
       translation: {
         id: translationId,
@@ -117,6 +117,7 @@ export const getAllBanner = async (orgId, params) => {
         type: data.type || 'banner',
         created_at: data.created_at || '',
         updated_at: data.updated_at || '',
+        show_in: data.show_in || [],
         translation: data.translation || {
           id: uuidv4(),
           locale: 'en',
@@ -190,6 +191,7 @@ export const getAllBannerSnap = async (params, callback) => {
           type: data.type || 'banner',
           created_at: data.created_at || '',
           updated_at: data.updated_at || '',
+          show_in: data.show_in || [],
           translation: data.translation || {
             id: uuidv4(),
             locale: 'en',
@@ -259,8 +261,11 @@ export const getAllBannerById = async (orgId, uid) => {
             if (typeof productId === 'string' || typeof productId === 'number') {
               try {
                 console.log('Fetching product details for ID:', productId);
-                const product = await getAllProductsById(orgId, productId);
-                return product ? { ...product, id: productId } : null;
+                const product = await getAllProductsById(orgId, productId);                
+                if (!product) return null;
+
+                // Return the complete product data directly
+                return product.data;
               } catch (error) {
                 console.error('Error fetching product with ID:', productId, error);
                 return null;  
@@ -297,6 +302,7 @@ export const getAllBannerById = async (orgId, uid) => {
         type: data.type || 'banner',
         created_at: data.created_at || '',
         updated_at: data.updated_at || '',
+        show_in: data.show_in || [],
         
 
         translation: data.translation || {
@@ -306,7 +312,6 @@ export const getAllBannerById = async (orgId, uid) => {
           description: '',
           button_text: ''
         },
-        
         translations: data.translations || [
           {
             id: data.translation?.id || uuidv4(),
@@ -316,15 +321,9 @@ export const getAllBannerById = async (orgId, uid) => {
             button_text: data.translation?.button_text || ''
           }
         ],
-        
-
         locales: data.locales || ['en'],
-        
- 
-        products: productsDetail.filter(product => product !== null),
-        
-     
-        galleries: galleries
+        galleries: galleries,
+        products: productsDetail.filter(product => product !== null)
       };
 
       return { data: formattedBanner };
@@ -345,7 +344,6 @@ export const getAllBannerById = async (orgId, uid) => {
 export const updateBanner = async (uid, params) => {
   try {
     console.log('Updating banner with ID:', uid);
-    console.log('Update params:', JSON.stringify(params, null, 2));
 
 
     const docRef = doc(db, `T_banners`, uid);
@@ -371,6 +369,7 @@ export const updateBanner = async (uid, params) => {
       clickable,
       active,
       images,
+      show_in,
     } = params;
 
     const locale = params.translation?.locale || existingData.translation?.locale || 'en';
@@ -428,6 +427,7 @@ export const updateBanner = async (uid, params) => {
       active: active === true || active === 1 ? 1 : (active === false || active === 0 ? 0 : existingData.active),
       clickable: clickable === true || clickable === 1 ? 1 : (clickable === false || clickable === 0 ? 0 : existingData.clickable),
       updated_at: timestamp,
+      ...(show_in && { show_in }),
       
   
       translation: translationObject,
@@ -443,8 +443,6 @@ export const updateBanner = async (uid, params) => {
     if (productIds.length > 0) {
       bannerUpdateDoc.products = productIds;
     }
-
-    console.log('Updating with document:', JSON.stringify(bannerUpdateDoc, null, 2));
 
 
     await updateDoc(docRef, bannerUpdateDoc);
