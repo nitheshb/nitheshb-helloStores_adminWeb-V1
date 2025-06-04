@@ -83,6 +83,8 @@ export const createProductsDb = async (orgId, payload) => {
     unit_id: params.unit_id || null,
     kitchen_id: params.kitchen_id || null,
     active: params.active === true || params.active === 1 ? 1 : 0,
+    is_show_in_homescreen: params.is_show_in_homescreen === true || params.is_show_in_homescreen === 1 ? true : false,
+    show_in: params.show_in || [],
     status: params.status && isValidStatus(params.status) ? params.status : PRODUCT_STATUS.PENDING,
     type: 'product',
     created_at: Timestamp.now().toMillis(),
@@ -464,7 +466,7 @@ export const getAllProductsById = async (orgId, uid, params = {}) => {
       ]);
 
       // Get the shop data from the hardcoded mapping
-      const shop = hardcodedShops[data.shop_id] || { translation: { title: 'Unknown Shop' } };
+      const shop = hardcodedShops[data.shop_id] || { translation: { title: 'Noma Haus' } };
 
       const galleries = [];
       if (data.img) {
@@ -691,6 +693,8 @@ export const updateProducts = async (uid, params) => {
     if (params.unit_id !== undefined) updateData.unit_id = params.unit_id || null;
     if (params.kitchen_id !== undefined) updateData.kitchen_id = params.kitchen_id || null;
     if (params.active !== undefined) updateData.active = params.active === true || params.active === 1 ? 1 : 0;
+    if (params.is_show_in_homescreen !== undefined) updateData.is_show_in_homescreen = params.is_show_in_homescreen === true || params.is_show_in_homescreen === 1 ? true : false;
+    if (params.show_in !== undefined) updateData.show_in = params.show_in || [];
     if (params.price !== undefined) updateData.price = Number(params.price) || 0;
     
      // Handle status with enum validation
@@ -854,7 +858,51 @@ export const setActiveProducts = async (id) => {
     }
 };
 
+export const setShowInHomescreenProducts = async (id) => {
+    try {
+        // Extract the actual ID from the path if needed
+        const productId = id.includes('/') ? id.split('/').pop() : id;
 
+        // Get the current document data
+        const docRef = doc(db, 'T_products', productId);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+            throw new Error(`Product with ID ${productId} not found`);
+        }
+
+        // Get current data and toggle the is_show_in_homescreen status
+        const productData = docSnap.data();
+        const currentShowInHomescreen = productData.is_show_in_homescreen === true;
+        const newShowInHomescreen = !currentShowInHomescreen;
+
+        // Update the document with the toggled is_show_in_homescreen status
+        await updateDoc(docRef, {
+            is_show_in_homescreen: newShowInHomescreen,
+            updated_at: Timestamp.now().toMillis()
+        });
+
+        // Prepare and return the response in the expected format
+        const response = {
+            timestamp: new Date().toISOString(),
+            status: true,
+            data: {
+                id: parseInt(productId) || productId, // Try to parse as integer if possible
+                is_show_in_homescreen: newShowInHomescreen,
+                position: productData.position || "before",
+                "created_at": Timestamp.now().toMillis(),
+                "updated_at": Timestamp.now().toMillis(),
+                locales: productData.locales || ["en"]
+            }
+        };
+
+        console.log('Product show in homescreen status toggled successfully:', response);
+        return response;
+    } catch (error) {
+        console.error('Error toggling product show in homescreen status:', error);
+        throw error;
+    }
+};
 
 export const PRODUCT_STATUS = {
   PENDING: 'pending',

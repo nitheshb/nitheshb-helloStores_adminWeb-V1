@@ -5,7 +5,7 @@ import {
   EditOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import { Button, Table, Space, Switch, Tabs, Typography, Divider } from 'antd';
+import { Button, Table, Space, Switch, Tabs, Typography, Divider, Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { export_url } from 'configs/app-global';
@@ -127,6 +127,41 @@ const ProductCategories = () => {
             disabled={row?.deleted_at}
             checked={active}
           />
+        );
+      },
+    },
+    {
+      title: t('Show in home'),
+      dataIndex: 'is_show_in_homescreen',
+      is_show: true,
+      render: (is_show_in_homescreen, row) => {
+        return (
+          <Switch
+            onChange={() => {
+              setIsModalVisible(true);
+              setId(row?.uuid);
+              setActive('homescreen');
+            }}
+            disabled={row?.deleted_at}
+            checked={is_show_in_homescreen}
+          />
+        );
+      },
+    },
+    {
+      title: t('Show in'),
+      dataIndex: 'show_in',
+      key: 'show_in',
+      is_show: true,
+      render: (show_in, record) => {
+        if (!show_in || !Array.isArray(show_in)) return '-';
+        const text = show_in.join(', ');
+        return (
+          <Tooltip title={text}>
+            <span style={{ maxWidth: '200px', display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {text}
+            </span>
+          </Tooltip>
         );
       },
     },
@@ -311,8 +346,12 @@ const ProductCategories = () => {
 
   const handleActive = () => {
     setLoadingBtn(true);
-    productService
-      .setActive(id)
+    
+    const serviceMethod = active === 'homescreen' 
+      ? productService.setShowInHomescreen(id)
+      : productService.setActive(id);
+    
+    serviceMethod
       .then(() => {
         setIsModalVisible(false);
         dispatch(setRefetch(activeMenu));
@@ -503,7 +542,9 @@ const ProductCategories = () => {
         click={active ? handleActive : productDelete}
         text={
           active
-            ? t('are.you.sure.you.want.to.change.the.activity?')
+            ? active === 'homescreen' 
+              ? t('are.you.sure.you.want.to.change.homescreen.visibility?')
+              : t('are.you.sure.you.want.to.change.the.activity?')
             : text
               ? t('confirm.delete.selection')
               : t('confirm.delete.selection')

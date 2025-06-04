@@ -1,5 +1,5 @@
 import request from './request';
-import{getAllProducts, ExtrasGroupsDb, getAllproductsSnap, getAllProductsById, createProductsDb, updateProducts, deleteProducts, createStocksDb, setActiveProducts,updateProductStatus} from './dbQueries/q_product';
+import{getAllProducts, ExtrasGroupsDb, getAllproductsSnap, getAllProductsById, createProductsDb, updateProducts, deleteProducts, createStocksDb, setActiveProducts, setShowInHomescreenProducts, updateProductStatus} from './dbQueries/q_product';
 import { update } from 'lodash';
              
 const productService = {
@@ -47,6 +47,7 @@ const productService = {
     extras: (id, params) => ExtrasGroupsDb(`dashboard/admin/products/${id}/extras`, params),
     updateStatus: (id, params) => updateProductStatus(id, params.status),
     setActive: (id) => setActiveProducts(`dashboard/admin/products/active/${id}`),
+    setShowInHomescreen: (id) => setShowInHomescreenProducts(`dashboard/admin/products/show-in-homescreen/${id}`),
       
 
    

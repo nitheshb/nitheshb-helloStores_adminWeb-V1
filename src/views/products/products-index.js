@@ -8,6 +8,7 @@ import {
   InputNumber,
   Row,
   Switch,
+  Select,
 } from 'antd';
 import { DebounceSelect } from 'components/search';
 import brandService from 'services/brand';
@@ -354,6 +355,29 @@ const ProductsIndex = ({ next, action_type = '' }) => {
             <Switch />
           </Form.Item>
         </Col>
+         <Col span={4}>
+          <Form.Item label={t('Show in home')} name='is_show_in_homescreen' valuePropName='checked'>
+            <Switch />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item
+            label={t('Show in')}
+            name='show_in'
+          >
+            <Select
+              mode='multiple'
+              placeholder={t('select show in options')}
+              options={[
+                { label: t('Most popular'), value: 'Most Popular' },
+                { label: t('Top discount of the sale'), value: 'Top Discount of the Sale' },
+                { label: t('Trending'), value: 'Trending' },
+                { label: t('Lowest price in the year'), value: 'Lowest Price in the Year' },
+              ]}
+            />
+          </Form.Item>
+        </Col>
+       
         <Col>
           <Form.Item
             label={t('images')}
@@ -374,6 +398,7 @@ const ProductsIndex = ({ next, action_type = '' }) => {
             />
           </Form.Item>
         </Col>
+       
       </Row>
       <Divider />
       <Button type='primary' htmlType='submit' loading={loadingBtn}>
