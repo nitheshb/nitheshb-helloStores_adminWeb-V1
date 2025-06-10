@@ -80,6 +80,7 @@ const StockForm = ({ next, prev, isRequest, userRole = 'admin' }) => {
               });
               return {
                 price: selectedStock?.price || 0,
+                selling_price: selectedStock?.selling_price || selectedStock?.price || 0,
                 quantity: selectedStock?.quantity || 0,
                 sku: selectedStock?.sku,
                 stock_id: selectedStock?.id,
@@ -101,6 +102,7 @@ const StockForm = ({ next, prev, isRequest, userRole = 'admin' }) => {
 
             return {
               price: 0,
+              selling_price: 0,
               quantity: 0,
               sku: activeMenu?.data?.sku,
               tax: activeMenu.data?.tax || 0,
@@ -134,6 +136,7 @@ const StockForm = ({ next, prev, isRequest, userRole = 'admin' }) => {
           defaultStock = [
             {
               price: stockWithoutExtras?.price || 0,
+              selling_price: stockWithoutExtras?.selling_price || stockWithoutExtras?.price || 0,
               quantity: stockWithoutExtras?.quantity || 0,
               sku: stockWithoutExtras?.sku,
               tax: activeMenu.data?.tax || 0,
@@ -145,6 +148,7 @@ const StockForm = ({ next, prev, isRequest, userRole = 'admin' }) => {
           defaultStock = [
             {
               price: undefined,
+              selling_price: undefined,
               quantity: 0,
               sku: activeMenu.data?.sku,
               tax: activeMenu.data?.tax || 0,
@@ -178,6 +182,7 @@ const StockForm = ({ next, prev, isRequest, userRole = 'admin' }) => {
     if (activeMenu.data?.extras?.length) {
       extras = actualStock.map((item) => ({
         price: item?.price,
+        selling_price: item?.selling_price,
         quantity: item?.quantity,
         sku: item?.sku,
         ids: isRequest
@@ -196,6 +201,7 @@ const StockForm = ({ next, prev, isRequest, userRole = 'admin' }) => {
       extras = [
         {
           price: actualStock?.[0]?.price,
+          selling_price: actualStock?.[0]?.selling_price,
           quantity: actualStock?.[0]?.quantity,
           addons: actualStock?.[0]?.addons
             ? isRequest

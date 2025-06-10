@@ -44,7 +44,7 @@ const ProductStockList = ({ fetchAddonOptions, form }) => {
                         <Select
                           disabled
                           className='w-100'
-                          style={{ minWidth: 200 }}
+                          style={{ minWidth: 150 }}
                         />
                       </Form.Item>
                     </Col>
@@ -57,7 +57,7 @@ const ProductStockList = ({ fetchAddonOptions, form }) => {
                     >
                       <DebounceSelect
                         mode='multiple'
-                        style={{ minWidth: '300px', maxWidth: '300px' }}
+                        style={{ minWidth: '150px', maxWidth: '300px' }}
                         fetchOptions={fetchAddonOptions}
                         allowClear={true}
                       />
@@ -65,7 +65,7 @@ const ProductStockList = ({ fetchAddonOptions, form }) => {
                   </Col>
                   <Col>
                     <Form.Item label={t('sku')} name={[index, 'sku']}>
-                      <Input className='w-100' style={{ minWidth: 200 }} />
+                      <Input className='w-100' style={{ minWidth: 100 }} />
                     </Form.Item>
                   </Col>
 
@@ -78,7 +78,7 @@ const ProductStockList = ({ fetchAddonOptions, form }) => {
                       <InputNumber
                         min={0}
                         className='w-100'
-                        style={{ minWidth: 200 }}
+                        style={{ minWidth: 80 }}
                       />
                     </Form.Item>
                   </Col>
@@ -91,7 +91,7 @@ const ProductStockList = ({ fetchAddonOptions, form }) => {
                       <InputNumber
                         min={0}
                         className='w-100'
-                        style={{ minWidth: 200 }}
+                        style={{ minWidth: 100 }}
                       />
                     </Form.Item>
                     <Form.Item
@@ -103,11 +103,24 @@ const ProductStockList = ({ fetchAddonOptions, form }) => {
                     </Form.Item>
                   </Col>
                   <Col>
+                    <Form.Item
+                      label={`${t('selling.price')} (${defaultCurrency?.symbol})`}
+                      name={[index, 'selling_price']}
+                      rules={[{ required: true, message: t('required') }]}
+                    >
+                      <InputNumber
+                        min={0}
+                        className='w-100'
+                        style={{ minWidth: 150 }}
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col>
                     <Form.Item label={t('tax')} name={[index, 'tax']}>
                       <InputNumber
                         className='w-100'
                         disabled
-                        style={{ minWidth: 200 }}
+                        style={{ minWidth: 80 }}
                         addonAfter='%'
                       />
                     </Form.Item>
@@ -142,7 +155,7 @@ const ProductStockList = ({ fetchAddonOptions, form }) => {
                               disabled
                               value={totalPrice}
                               className='w-100'
-                              style={{ minWidth: 200 }}
+                              style={{ minWidth: 150 }}
                             />
                           </Form.Item>
                         );

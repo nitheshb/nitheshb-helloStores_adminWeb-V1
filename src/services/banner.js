@@ -1,5 +1,5 @@
 import request from './request';
-import { getAllBanner, getAllBannerById, createBannerDb, updateBanner, deleteBanner } from './dbQueries/q_banners';
+import { getAllBanner, getAllBannerById, createBannerDb, updateBanner, deleteBanner, updateBannerOrder, setActive } from './dbQueries/q_banners';
 
 const bannerService = {
   // getAll: (params) =>
@@ -10,7 +10,7 @@ const bannerService = {
   // update: (id, data) => request.put(`dashboard/admin/banners/${id}`, data, {}),
   // delete: (params) =>
   //   request.delete(`dashboard/admin/banners/delete`, { params }),
-  setActive: (id) => request.post(`dashboard/admin/banners/active/${id}`),
+  // setActive: (id) => request.post(`dashboard/admin/banners/active/${id}`),
   dropAll: () => request.get(`dashboard/admin/banners/drop/all`),
   restoreAll: () => request.get(`dashboard/admin/banners/restore/all`),
   
@@ -21,6 +21,8 @@ const bannerService = {
     create: (params) => createBannerDb('spark', { params }),
     update: (id, params) => updateBanner( id,params ),
     delete: (params) => deleteBanner(params),
+    updateOrder: (orderedIds) => updateBannerOrder(orderedIds),
+    setActive: (id) => setActive(id),
 };
 
 export default bannerService;

@@ -62,18 +62,7 @@ const ProductsFilter = ({
       page,
       perPage: 10,
     };
-    
-    brandService.getAllSnap(params, 
-  
-      (querySnapshot) => {
-        // const usersListA = querySnapshot.docs.map((docSnapshot) =>
-        //   docSnapshot.data()
-        // )
-        console.log('user list is ', querySnapshot)
-        // setLeadsFetchedData(usersListA)
-      })
-    return brandService.getAll(params, (res) => {
-      console.log('responese is', res)
+    return brandService.getAll(params).then((res) => {
       setHasMore((prev) => ({
         ...prev,
         brand: res?.meta?.current_page < res?.meta?.last_page,

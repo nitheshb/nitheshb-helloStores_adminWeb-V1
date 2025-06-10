@@ -59,6 +59,7 @@ export const createBannerDb = async (orgId, payload) => {
       type: 'banner',
       created_at: timestamp,
       updated_at: timestamp,
+      order: payload.order !== undefined ? payload.order : 1,
       ...(show_in && { show_in }),
       
       translation: {
@@ -118,6 +119,7 @@ export const getAllBanner = async (orgId, params) => {
         created_at: data.created_at || '',
         updated_at: data.updated_at || '',
         show_in: data.show_in || [],
+        order: data.order || 1,
         translation: data.translation || {
           id: uuidv4(),
           locale: 'en',
@@ -125,12 +127,21 @@ export const getAllBanner = async (orgId, params) => {
           description: '',
           button_text: ''
         }
-
       };
     });
 
+    // Sort banners: active first (by order), then inactive (by order)
+    const sortedBanners = banners.sort((a, b) => {
+      // First sort by active status (active = 1 comes first)
+      if (a.active !== b.active) {
+        return b.active - a.active;
+      }
+      // If active status is the same, sort by order
+      return (a.order || 0) - (b.order || 0);
+    });
+
     let y = {
-      data: banners,
+      data: sortedBanners,
       meta: {
         current_page: 1,
         from: 1,
@@ -192,6 +203,7 @@ export const getAllBannerSnap = async (params, callback) => {
           created_at: data.created_at || '',
           updated_at: data.updated_at || '',
           show_in: data.show_in || [],
+          order: data.order || 1,
           translation: data.translation || {
             id: uuidv4(),
             locale: 'en',
@@ -427,6 +439,7 @@ export const updateBanner = async (uid, params) => {
       active: active === true || active === 1 ? 1 : (active === false || active === 0 ? 0 : existingData.active),
       clickable: clickable === true || clickable === 1 ? 1 : (clickable === false || clickable === 0 ? 0 : existingData.clickable),
       updated_at: timestamp,
+      order: params.order !== undefined ? params.order : existingData.order || 1,
       ...(show_in && { show_in }),
       
   
@@ -487,6 +500,57 @@ export const deleteBanner = async (params) => {
     return { success: true };
   } catch (error) {
     console.error('Error deleting banners:', error);
+    throw error;
+  }
+};
+
+export const updateBannerOrder = async (orderedIds) => {
+  try {
+    const batch = [];
+    for (let i = 0; i < orderedIds.length; i++) {
+      const id = orderedIds[i];
+      const docRef = doc(db, 'T_banners', id);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        // If banner is inactive, set order to 0, otherwise use the index + 1
+        const order = data.active === 0 ? 0 : i + 1;
+        batch.push(updateDoc(docRef, { order }));
+      }
+    }
+    await Promise.all(batch);
+    console.log('Banner order updated successfully');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating banner order:', error);
+    throw error;
+  }
+};
+
+export const setActive = async (bannerId) => {
+  try {
+    console.log('Setting active status for banner:', bannerId);
+    
+    const docRef = doc(db, 'T_banners', bannerId);
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists()) {
+      throw new Error(`Banner with ID ${bannerId} not found`);
+    }
+    
+    const currentData = docSnap.data();
+    const newActiveStatus = currentData.active === 1 ? 0 : 1;
+    
+    await updateDoc(docRef, {
+      active: newActiveStatus,
+      updated_at: Timestamp.now().toMillis()
+    });
+    
+    console.log('Banner active status updated successfully:', { bannerId, newActiveStatus });
+    return { success: true, active: newActiveStatus };
+  } catch (error) {
+    console.error('Error updating banner active status:', error);
     throw error;
   }
 };

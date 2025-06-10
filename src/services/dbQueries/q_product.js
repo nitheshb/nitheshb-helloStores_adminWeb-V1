@@ -1,4 +1,4 @@
-import {Timestamp, db,doc,collection, query, where, setDoc, getDocs, addDoc, updateDoc, deleteDoc, getDoc, onSnapshot, orderBy } from 'db';
+import {Timestamp, db,doc,collection, query, where, setDoc, getDocs, updateDoc, deleteDoc, getDoc, onSnapshot } from 'db';
 import { v4 as uuidv4 } from 'uuid'
 
 
@@ -161,6 +161,7 @@ export const createStocksDb = async (productId, data) => {
       // Calculate total_price
       const tax = Number(stock.tax || 0);
       const price = Number(stock.price);
+      const selling_price = Number(stock.selling_price || price); // Use price as fallback if selling_price not provided
       const total_price = tax === 0 ? price : (price * tax) / 100 + price;
       
       // Process extras - extract IDs from the form data
@@ -186,6 +187,7 @@ export const createStocksDb = async (productId, data) => {
         countable_id: productId,
         sku: stock.sku || '',
         price: price,
+        selling_price: selling_price,
         quantity: Number(stock.quantity),
         tax: tax,
         total_price: total_price,
@@ -199,7 +201,7 @@ export const createStocksDb = async (productId, data) => {
       
       console.log('Saving stock data:', stockData);
       await setDoc(docRef, stockData);
-      await updateProducts(productId, { price });
+      await updateProducts(productId, { price, selling_price });
       console.log('Successfully saved stock:', id);
     }
     
@@ -234,107 +236,174 @@ const hardcodedShops = {
 };
 
 export const getAllProducts = async (orgId, params) => {
-  const productsQuery = query(
-    collection(db, 'T_products'),
-    orderBy('created_at', 'desc')
-  );
+  // Extract params from the nested structure
+  const filterParams = params?.params || {};
 
-  const querySnapshot = await getDocs(productsQuery);
+  // Build query constraints array
+  const constraints = [];
+  
+  // Add filters to constraints array only if they have actual values
+  if (filterParams.category_id && filterParams.category_id !== 'undefined' && filterParams.category_id !== '') {
+    constraints.push(where('category_id', '==', filterParams.category_id));
+  }
+  
+  if (filterParams.brand_id && filterParams.brand_id !== 'undefined' && filterParams.brand_id !== '') {
+    constraints.push(where('brand_id', '==', filterParams.brand_id));
+  }
+  
+  if (filterParams.shop_id && filterParams.shop_id !== 'undefined' && filterParams.shop_id !== '') {
+    constraints.push(where('shop_id', '==', filterParams.shop_id));
+  }
+  
+  if (filterParams.status && filterParams.status !== 'undefined' && filterParams.status !== '') {
+    constraints.push(where('status', '==', filterParams.status));
+  }
 
-  // Helper function to get translation
-  const getTranslation = async (collectionName, id, fallback) => {
-    if (!id) return { id, translation: { title: fallback } };
-    try {
-      const ref = doc(db, collectionName, String(id));
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
-        const data = snap.data();
-        return {
-          id,
-          ...data,
-          translation: data.translation || { title: fallback },
-        };
-      }
-    } catch (e) {
-      console.warn(`Failed to fetch ${collectionName}/${id}`, e);
-    }
-    return { id, translation: { title: fallback } };
-  };
+  try {
+    // Create the query with all constraints
+    const productsQuery = query(
+      collection(db, 'T_products'),
+      ...constraints
+    );
 
-  const files = await Promise.all(
-    querySnapshot.docs.map(async (docSnap) => {
-      const data = docSnap.data();
+    const querySnapshot = await getDocs(productsQuery);
 
-      // Fetch additional information for category, brand, and shop
-      const [category, brand, kitchen] = await Promise.all([
-        getTranslation('p_category', data.category_id, 'N/A'),
-        getTranslation('brands', data.brand_id, 'N/A'),
-        getTranslation('kitchen', data.kitchen_id, 'N/A'), // Assuming kitchen exists in the DB
-      ]);
-
-      const shopId = String(data.shop_id); // Convert to string
-      // Get the shop data from the hardcoded mapping
-      const shop = hardcodedShops[shopId] || { translation: { title: 'Noma Haus' } };
-
-      // Fetch stocks, addons, and extras
-      const stocks = await Promise.all(
-        (data.stocks || []).map(async (stock) => {
-          const addons = await Promise.all(
-            (stock.addons || []).map(async (addon) => {
-              const product = addon.product ? await getTranslation('T_products', addon.product.id, 'N/A') : null;
-              return {
-                ...addon,
-                product,
-              };
-            })
-          );
-
-          const extras = await Promise.all(
-            (stock.extras || []).map(async (extra) => {
-              const group = extra.group ? await getTranslation('extra_group', extra.group.id, 'N/A') : null;
-              return {
-                ...extra,
-                group,
-              };
-            })
-          );
-
-          return {
-            ...stock,
-            addons,
-            extras,
-          };
-        })
-      );
-
-      // Return final product data
+    if (querySnapshot.empty) {
       return {
-        ...data,
-        id: docSnap.id,
-        uuid: docSnap.id, // Assuming uuid is the same as id in this case
-        category,
-        brand,
-        shop,
-        kitchen,
-        stocks,
-        reviews: data.reviews || [], // If reviews exist
-        translations: data.translations || [{ locale: 'en', title: data.translation?.title || 'N/A' }],
-        locales: data.locales || ['en'],
-        shopTitle: shop.translation?.title || 'N/A',
+        data: [],
+        meta: {
+          current_page: 1,
+          from: 0,
+          last_page: 1,
+          to: 0,
+          total: 0,
+        },
       };
-    })
-  );
+    }
 
-  return {
-    data: files,
-    meta: {
-      current_page: 1,
-      from: 1,
-      last_page: 1,
-      to: files.length,
-      total: files.length,
-    },
-  };
+    // Helper function to get translation
+    const getTranslation = async (collectionName, id, fallback) => {
+      if (!id) return { id, translation: { title: fallback } };
+      try {
+        const ref = doc(db, collectionName, String(id));
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          return {
+            id,
+            ...data,
+            translation: data.translation || { title: fallback },
+          };
+        }
+      } catch (e) {
+        console.warn(`Failed to fetch ${collectionName}/${id}`);
+      }
+      return { id, translation: { title: fallback } };
+    };
+
+    let files = await Promise.all(
+      querySnapshot.docs.map(async (docSnap) => {
+        const data = docSnap.data();
+
+        // Fetch additional information for category, brand, and shop
+        const [category, brand, kitchen] = await Promise.all([
+          getTranslation('p_category', data.category_id, 'N/A'),
+          getTranslation('brands', data.brand_id, 'N/A'),
+          getTranslation('kitchen', data.kitchen_id, 'N/A'),
+        ]);
+
+        const shopId = String(data.shop_id);
+        const shop = hardcodedShops[shopId] || { translation: { title: 'Noma Haus' } };
+
+        // Fetch stocks, addons, and extras
+        const stocks = await Promise.all(
+          (data.stocks || []).map(async (stock) => {
+            const addons = await Promise.all(
+              (stock.addons || []).map(async (addon) => {
+                const product = addon.product ? await getTranslation('T_products', addon.product.id, 'N/A') : null;
+                return {
+                  ...addon,
+                  product,
+                };
+              })
+            );
+
+            const extras = await Promise.all(
+              (stock.extras || []).map(async (extra) => {
+                const group = extra.group ? await getTranslation('extra_group', extra.group.id, 'N/A') : null;
+                return {
+                  ...extra,
+                  group,
+                };
+              })
+            );
+
+            return {
+              ...stock,
+              addons,
+              extras,
+            };
+          })
+        );
+
+        return {
+          ...data,
+          id: docSnap.id,
+          uuid: docSnap.id,
+          category,
+          brand,
+          shop,
+          kitchen,
+          stocks,
+          reviews: data.reviews || [],
+          translations: data.translations || [{ locale: 'en', title: data.translation?.title || 'N/A' }],
+          locales: data.locales || ['en'],
+          shopTitle: shop.translation?.title || 'N/A',
+        };
+      })
+    );
+
+    // Sort the results in memory after fetching
+    files.sort((a, b) => b.created_at - a.created_at);
+
+    // Apply search filter if search parameter exists and has a value
+    if (filterParams.search && filterParams.search !== 'undefined' && filterParams.search !== '') {
+      const searchTerm = filterParams.search.toLowerCase();
+      files = files.filter(product => {
+        // Search in translations
+        const translationMatch = product.translations?.some(trans => 
+          trans.title?.toLowerCase().includes(searchTerm) || 
+          trans.description?.toLowerCase().includes(searchTerm)
+        );
+        
+        // Search in title object
+        const titleMatch = Object.values(product.title || {}).some(title => 
+          title.toLowerCase().includes(searchTerm)
+        );
+        
+        // Search in other fields
+        const otherFieldsMatch = 
+          product.sku?.toLowerCase().includes(searchTerm) ||
+          product.shopTitle?.toLowerCase().includes(searchTerm);
+        
+        return translationMatch || titleMatch || otherFieldsMatch;
+      });
+    }
+
+    return {
+      data: files,
+      meta: {
+        current_page: 1,
+        from: files.length > 0 ? 1 : 0,
+        last_page: 1,
+        to: files.length,
+        total: files.length,
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
 };
 
 
@@ -511,6 +580,7 @@ export const getAllProductsById = async (orgId, uid, params = {}) => {
         stocks: stocks // Use the processed stocks with proper extras
       };
 
+      console.log('formattedProduct', formattedProduct)
       return { data: formattedProduct };
     } else {
       console.log('No product found with ID:', uid);
@@ -696,6 +766,7 @@ export const updateProducts = async (uid, params) => {
     if (params.is_show_in_homescreen !== undefined) updateData.is_show_in_homescreen = params.is_show_in_homescreen === true || params.is_show_in_homescreen === 1 ? true : false;
     if (params.show_in !== undefined) updateData.show_in = params.show_in || [];
     if (params.price !== undefined) updateData.price = Number(params.price) || 0;
+    if (params.selling_price !== undefined) updateData.selling_price = Number(params.selling_price) || 0;
     
      // Handle status with enum validation
     if (params.status !== undefined) {

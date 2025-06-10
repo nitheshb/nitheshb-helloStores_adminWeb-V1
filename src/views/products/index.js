@@ -521,7 +521,7 @@ const ProductCategories = () => {
           columns={columns?.filter((item) => item.is_show)}
           dataSource={products}
           pagination={{
-            pageSize: meta?.per_page || 10,
+            pageSize: meta?.per_page || 100000,
             page: meta?.current_page || 1,
             total: meta?.total || 0,
             current: meta?.current_page || 1,

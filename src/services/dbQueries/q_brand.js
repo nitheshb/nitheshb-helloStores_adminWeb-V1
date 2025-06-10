@@ -19,12 +19,20 @@ export const  createBrandDb = async (orgId, payload)  =>  {
 
 export const getAllBrands = async (orgId, params) => {
   console.log('params are ====>', params)
-  // const {params} = params
-  let convertStatus =params?.params?.status ==='published' ? 1: 0
-  const filesQuery = query(
-    collection(db, `P_brands`), // change to your collection name
-    // where('active', '==', convertStatus),
-  );
+  const { search = '', page = 1, perPage = 10 } = params?.params || {};
+  
+  // Create base query
+  let filesQuery = query(collection(db, `P_brands`));
+  
+  // Add search filter if search term exists
+  if (search) {
+    filesQuery = query(
+      collection(db, `P_brands`),
+      where('title', '>=', search),
+      where('title', '<=', search + '\uf8ff')
+    );
+  }
+  
   const querySnapshot = await getDocs(filesQuery);
   const files = querySnapshot.docs.map((doc) => {
     let x = doc.data();
@@ -33,34 +41,40 @@ export const getAllBrands = async (orgId, params) => {
     return x;
   });
   
-let y  = {data:files, 
-   "meta": {
-  "current_page": 1,
-  "from": 1,
-  "last_page": 1,
-  "links": [
-      {
-          "url": null,
-          "label": "&laquo; Previous",
-          "active": false
-      },
-      {
-          "url": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/brands\/paginate?page=1",
-          "label": "1",
-          "active": true
-      },
-      {
-          "url": null,
-          "label": "Next &raquo;",
-          "active": false
-      }
-  ],
-  "path": "https:\/\/single-api.foodyman.org\/api\/v1\/dashboard\/admin\/brands\/paginate",
-  "per_page": "1000",
-  "to": files.length,
-  "total": files.length
-}}
-  return y;
+  // Calculate pagination
+  const startIndex = (page - 1) * perPage;
+  const endIndex = startIndex + perPage;
+  const paginatedFiles = files.slice(startIndex, endIndex);
+  
+  return {
+    data: paginatedFiles,
+    meta: {
+      current_page: page,
+      from: startIndex + 1,
+      last_page: Math.ceil(files.length / perPage),
+      links: [
+        {
+          url: null,
+          label: "&laquo; Previous",
+          active: false
+        },
+        {
+          url: `https://api.hellostores.in/api/v1/dashboard/admin/brands/paginate?page=${page}`,
+          label: page.toString(),
+          active: true
+        },
+        {
+          url: null,
+          label: "Next &raquo;",
+          active: false
+        }
+      ],
+      path: "https://api.hellostores.in/api/v1/dashboard/admin/brands/paginate",
+      per_page: perPage.toString(),
+      to: endIndex,
+      total: files.length
+    }
+  };
 };
 
 export const getAllBrandsSnap = async (params, callback) => {
