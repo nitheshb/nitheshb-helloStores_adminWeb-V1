@@ -20,25 +20,25 @@ import {
 } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid'
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAa_8w1leO584ByuE3-hAvVN2Xoidz-8HA",
-  authDomain: "hellostores-860e8.firebaseapp.com",
-  projectId: "hellostores-860e8",
-  storageBucket: "hellostores-860e8.firebasestorage.app",
-  messagingSenderId: "158530064456",
-  appId: "1:158530064456:web:56dfcf5e59764251d8487d",
-  measurementId: "G-X93PZ3YNQJ"
-};
+// const firebaseConfig = {
+//   apiKey: "AIzaSyAa_8w1leO584ByuE3-hAvVN2Xoidz-8HA",
+//   authDomain: "hellostores-860e8.firebaseapp.com",
+//   projectId: "hellostores-860e8",
+//   storageBucket: "hellostores-860e8.firebasestorage.app",
+//   messagingSenderId: "158530064456",
+//   appId: "1:158530064456:web:56dfcf5e59764251d8487d",
+//   measurementId: "G-X93PZ3YNQJ"
+// };
 
 
 // Todo: replace the firebaseConfig with your own
-const app = initializeApp(firebaseConfig);
+// const app = initializeApp(firebaseConfig);
 
 const messaging = getMessaging();
-const db = getFirestore(app);
+// const db = getFirestore(app);
 
 
-export {db,
+export {
   messaging,  
   getFirestore,
   collection,

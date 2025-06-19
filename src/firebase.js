@@ -51,14 +51,16 @@ import { data } from 'browserslist';
 //   appId: APP_ID,
 //   measurementId: MEASUREMENT_ID,
 // };
+
+
 const firebaseConfig = {
-  apiKey: "AIzaSyAa_8w1leO584ByuE3-hAvVN2Xoidz-8HA",
-  authDomain: "hellostores-860e8.firebaseapp.com",
-  projectId: "hellostores-860e8",
-  storageBucket: "hellostores-860e8.firebasestorage.app",
-  messagingSenderId: "158530064456",
-  appId: "1:158530064456:web:56dfcf5e59764251d8487d",
-  measurementId: "G-X93PZ3YNQJ"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
 
