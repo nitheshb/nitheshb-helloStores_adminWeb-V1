@@ -1,6 +1,5 @@
 import request from './request';
-import { getAllUsers, getAllusersSnap, getAllUsersById, createUsersDb, updateUsers, deleteUsers } from './dbQueries/q_user';
-import { update } from 'lodash';
+import { getAllUsers, getAllUsersById, createUsersDb, updateUsers, deleteUsers, searchUsers } from './dbQueries/q_user';
 
 const userService = {
   // getAll: (params) => request.get('dashboard/admin/users/paginate', { params }),
@@ -9,7 +8,7 @@ const userService = {
   // create: (data) => request.post('dashboard/admin/users', data),
   // update: (id, data) => request.put(`dashboard/admin/users/${id}`, data),
   // delete: (id) => request.delete(`dashboard/admin/users/${id}`),
-  search: (params) => request.get(`dashboard/admin/users/search`, { params }),
+  // search: (params) => request.get(`dashboard/admin/users/search`, { params }),
   updateRole: (id, params) =>
     request.post(`dashboard/admin/users/${id}/role/update`, {}, { params }),
   updatePassword: (uuid, params) =>
@@ -40,6 +39,7 @@ const userService = {
       create: (params) => createUsersDb('spark', { params }),
       update: (id, params) => updateUsers( id, params ),
       delete: (params) => deleteUsers(params),
+      search: (params) => searchUsers(params),
     
       
 };

@@ -1,16 +1,16 @@
 import request from './request';
-import { createOrderDb, getAllOrder ,getAllOrderSnap,  getAllOrderById, updateOrder, deleteOrder} from 'firebase.js';
+import { createOrderDb, getAllOrder ,getAllOrderSnap,  getAllOrderById,  deleteOrder} from './dbQueries/q_order';
 
 const orderService = {
-  getAll: (params) =>
-    request.get('dashboard/admin/orders/paginate', { params }),
+  // getAll: (params) =>
+  //   request.get('dashboard/admin/orders/paginate', { params }),
   // getById: (id, params) =>
   //   request.get(`dashboard/admin/orders/${id}`, { params }),
   export: (params) => request.get(`dashboard/admin/order/export`, { params }),
   // create: (data) => request.post('dashboard/admin/orders', data, {}),
   // update: (id, data) => request.put(`dashboard/admin/orders/${id}`, data),
-  calculate: (params) =>
-    request.get(`dashboard/admin/order/products/calculate${params}`),
+  // calculate: (params) =>
+  //   request.get(`dashboard/admin/order/products/calculate${params}`),
   updateStatus: (id, params) =>
     request.post(`dashboard/admin/order/${id}/status`, {}, { params }),
   updateDelivery: (id, params) =>
@@ -33,8 +33,9 @@ const orderService = {
     // getAllSnap: (params, callback) => getAllOrderSnap({ params }, callback),
     getById: (id, params) => getAllOrderById('spark', id, { params }),
     create: (params) => createOrderDb('spark', { params }),
-    update: (id, params) => updateOrder( id,params ),
+    // update: (id, params) => updateOrder( id,params ),
     delete: (params) => deleteOrder(params),
+    // calculate: (params) => calculateOrder(params),
 };
 
 export default orderService;
